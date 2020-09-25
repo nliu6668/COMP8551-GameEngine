@@ -1,5 +1,12 @@
 # COMP8551-GameEngine
 Major Project for COMP8551
 
-# Notice
-32 bit based libraries
+# How To Run (Cygwin/MinGW)
+To build the game
+```
+make
+```
+To run the game
+```
+./engine.exe
+```
