@@ -2,6 +2,7 @@
 #include <glfw/glfw3.h>
 
 #include <iostream>
+#include "engine.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
@@ -25,6 +26,12 @@ const char* fragmentShaderSource = "#version 330 core\n"
 
 int main()
 {
+    int x = 0;
+    Engine& e = Engine::getInstance();
+    while(x < 10000000) {
+        e.update();
+        x++;
+    }
     // glfw: initialize and configure
     // ------------------------------
     glfwInit();
