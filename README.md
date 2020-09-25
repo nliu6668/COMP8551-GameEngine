@@ -2,6 +2,7 @@
 Major Project for COMP8551
 
 ## How To Run (Cygwin/MinGW)
+Navigate to file that contains Makefile then:
 To build the game
 ```
 make
