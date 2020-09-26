@@ -18,6 +18,7 @@ class Engine : public EntityX {
             lastTime += deltaTime;
             float dt = deltaTime.count();
             dt *= 0.001f; //convert to seconds
+            std::cout << dt << std::endl;
         }
     private:
         explicit Engine() {

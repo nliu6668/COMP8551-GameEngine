@@ -10,7 +10,7 @@ ifeq ($(UNAME), Darwin)
 else
 
 LIB			:= libs
-LIBRARIES	:= -lglfw3 -lgdi32
+LIBRARIES	:= -lglfw3 -lgdi32 -lentityx
 
 endif
 
