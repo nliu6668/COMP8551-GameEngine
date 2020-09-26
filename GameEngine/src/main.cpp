@@ -26,12 +26,9 @@ const char* fragmentShaderSource = "#version 330 core\n"
 
 int main()
 {
-    int x = 0;
     Engine& e = Engine::getInstance();
-    while(x < 10000000) {
-        e.update();
-        x++;
-    }
+    e.update();
+    
     // glfw: initialize and configure
     // ------------------------------
     glfwInit();

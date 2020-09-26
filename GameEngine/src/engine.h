@@ -1,9 +1,14 @@
-// #ifndef engine_h
-// #define engine_h
+#ifndef engine_h
+#define engine_h
 #pragma once
 
 #include <entityx/entityx.h>
 #include <chrono>
+#include "Systems/PhysicsSystem.h"
+#include "Systems/SoundSystem.h"
+#include "Systems/InputSystem.h"
+#include "Systems/CustomScriptSystem.h"
+#include "Systems/RenderingSystem.h"
 
 
 #include <Windows.h>
@@ -13,29 +18,15 @@ class Engine : public EntityX {
     public:
         static Engine& getInstance();
 
-        void update() {
-            deltaTime = std::chrono::duration_cast<std::chrono::milliseconds>(clock.now().time_since_epoch()) - lastTime;
-            lastTime += deltaTime;
-            float dt = deltaTime.count();
-            dt *= 0.001f; //convert to seconds
-            std::cout << dt << std::endl;
-        }
+        //initialize must be called right before starting the game loop
+        void update();
     private:
-        explicit Engine() {
-            //initialize
-            //add systems
-            // systems.add<InputSystem>();
-            // systems.add<PhysicsSystem>();
-            // systems.add<SoundSystem>();
-            // systems.add<CustomScriptSystem>();
-            // systems.add<RenderingSystem>();
-            // systems.configure();
-            // ticksSinceLaunch = std::chrono::system_clock
-            lastTime = std::chrono::duration_cast<std::chrono::milliseconds>(clock.now().time_since_epoch());
-        }
+        explicit Engine();
         std::chrono::high_resolution_clock clock;
         std::chrono::milliseconds lastTime;
         std::chrono::milliseconds deltaTime;
+        bool initialized = false;
+        void initialize();
     
     public:
         //remove other constructors
@@ -44,9 +35,9 @@ class Engine : public EntityX {
 };
 
 // static methods implemented inside the header file
-Engine& Engine::getInstance() {
+inline Engine& Engine::getInstance() {
     static Engine instance;
     return instance;
 }
 
-// #endif /* engine_h */
+#endif /* engine_h */
