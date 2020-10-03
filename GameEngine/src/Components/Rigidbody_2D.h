@@ -1,7 +1,7 @@
 #pragma once
 
-struct 2DRigidbody {
-    2DRigidbody(float gravity = 1.0f, float linDrag = 0.0f, 
+struct Rigidbody_2D {
+    Rigidbody_2D(float gravity = 1.0f, float linDrag = 0.0f, 
 		float angDrag = 0.0f, float mass = 0.0f, 
 		float cmX = 0.0f, float cmY = 0.0f, float cmZ = 0.0f,
 		float velocity = 0.0f, float angVelocity = 0.0f,
