@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Components/Components.h"
-
 
 namespace Physics
 {
