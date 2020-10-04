@@ -6,11 +6,12 @@ struct BoxCollider {
 	float bbHeight = 0.0f, float bbWidth = 0.0f,
 	bool isTrigger = false, bool render = false) :
 	width(width), height(height), x(x), y(y), z(z), bbHeight(bbHeight),
-	bbWidth(bbWidth), isTrigger(isTrigger), render(render){}
+	bbWidth(bbWidth), isTrigger(isTrigger), render(render), b(x - bbWidth / 2.0f), e(x + bbWidth / 2.0f) {}
 	
 	float width, height;  //dimensions
 	float x, y, z;        //position (relative to the entity)
 	float bbHeight, bbWidth;  //bounding box for AABB
+	float b, e;
 	bool isTrigger;  //specifies if collider is a trigger
 	bool render;     //specifies whether to render the collider
 };
