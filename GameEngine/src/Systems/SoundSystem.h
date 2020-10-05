@@ -30,9 +30,9 @@ class SoundSystem : public System<SoundSystem> {
                 std::cout << "There is no device to use" << std::endl;
                 return false;
             }
-            else[
+            else{
                 return true;
-            ]
+            }
         }
 
         void cleanup() {
