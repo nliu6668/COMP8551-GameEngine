@@ -19,15 +19,15 @@ public:
         
         });
 
-        toFile(ccodestring, "CustomTestScript");
+        // toFile(ccodestring, "CustomTestScript");
 
-        CScript* cscript;
-        cscript = getCustomScriptObject("CustomTestScript");
+        // CScript* cscript;
+        // cscript = getCustomScriptObject("CustomTestScript");
         
-        if (cscript != NULL)
-            cscript->update();
-        else
-            std::cout << "getCustomScriptObject failed" << std::endl;
+        // if (cscript != NULL)
+        //     cscript->update();
+        // else
+        //     std::cout << "getCustomScriptObject failed" << std::endl;
     }
 
     /**

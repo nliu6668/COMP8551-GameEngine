@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include "engine.h"
-#include "CustomTestScript.h"               // Temp script for testing customscripts
 #include "Components/CustomScript.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
