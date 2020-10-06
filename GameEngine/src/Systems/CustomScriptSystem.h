@@ -48,7 +48,7 @@ public:
      * 
      * #PARAM filename: name of file that contains the C++ code
      */
-    CScript* getCustomScriptObject(std::string ccode)
+    CScript* getCustomScriptObject(std::string filename)
     {
         HINSTANCE hdll = NULL;
         CScript* cscript = NULL;
