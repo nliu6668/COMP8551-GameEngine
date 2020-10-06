@@ -30,15 +30,25 @@ public:
             std::cout << "getCustomScriptObject failed" << std::endl;
     }
 
-    void toFile(std::string ccode)
+    /**
+     * Opens or Creates a cpp file to fill with a string of c++ code
+     * #PARAM ccode: String C++ of code
+     * #PARAM filename: Name of file you want to create to file   
+     */
+    void toFile(std::string ccode, std::string filename)
     {
         ofstream myfile;
-        myfile.open("src/CustomScripts/CustomTestScript.cpp");
+        std::string filepath = "src/CustomScripts/" + filename + ".cpp";
+        myfile.open(filepath);
         myfile << ccode;
         myfile.close();
     }
 
-    CScript* getCustomScriptObject(std::string filename)
+    /**
+     * 
+     * #PARAM filename: name of file that contains the C++ code
+     */
+    CScript* getCustomScriptObject(std::string ccode, std::string filename)
     {
         HINSTANCE hdll = NULL;
         CScript* cscript = NULL;
