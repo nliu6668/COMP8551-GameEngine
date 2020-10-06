@@ -10,5 +10,4 @@ struct CustomScript
     CustomScript(CScript* cScript) : cScript(cScript) {}
 
     CScript* cScript; 
-    int y;
 };
