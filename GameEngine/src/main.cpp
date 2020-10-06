@@ -3,6 +3,8 @@
 
 #include <iostream>
 #include "engine.h"
+#include "CustomTestScript.h"
+#include "Components/CustomScript.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
@@ -29,33 +31,38 @@ typedef void (*f_update)();
 int main()
 {
     Engine& e = Engine::getInstance();
-    e.update();
+
+    entityx::Entity entity = e.entities.create();
+    entity.assign<CustomScript>(new CustomTestScript());
+
+    while (true)
+        e.update();
 
     std::cout << "Engine Running" << std::endl;
 
-    system("mkdir temp");
-    system("g++ -c src/TestScript.cpp -o temp/TestScript.o");
-    system("g++ temp/TestScript.o -o temp/TestScript.dll -shared -fPIC");
+    // system("mkdir temp");
+    // system("g++ -c src/TestScript.cpp -o temp/TestScript.o");
+    // system("g++ temp/TestScript.o -o temp/TestScript.dll -shared -fPIC");
 
-    HINSTANCE hGetIDDLL = LoadLibrary("temp\\TestScript.dll");
+    // HINSTANCE hGetIDDLL = LoadLibrary("temp\\TestScript.dll");
 
-    if (!hGetIDDLL)
-    {
-        std::cout << "Could not load the dynamic library" << std::endl;
-        return 0;
-    }
+    // if (!hGetIDDLL)
+    // {
+    //     std::cout << "Could not load the dynamic library" << std::endl;
+    //     return 0;
+    // }
 
-    std::cout << "Loaded dynamic library" << std::endl;
+    // std::cout << "Loaded dynamic library" << std::endl;
 
-    f_update update = (f_update) GetProcAddress(hGetIDDLL, "update");
+    // f_update update = (f_update) GetProcAddress(hGetIDDLL, "update");
 
-    if (!update)
-    {
-        std::cout << "Could not get function update" << std::endl;
-        return 0;
-    }
+    // if (!update)
+    // {
+    //     std::cout << "Could not get function update" << std::endl;
+    //     return 0;
+    // }
 
-    update();
+    // update();
     
 //     // glfw: initialize and configure
 //     // ------------------------------

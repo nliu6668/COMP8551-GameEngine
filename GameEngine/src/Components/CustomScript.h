@@ -3,12 +3,12 @@
 #include <string>
 #include <vector>
 
-#include <windows.h>
+#include "../CScript.h"
 
 struct CustomScript
 {
-    CustomScript(std::string _path) :  path(_path) {}
+    CustomScript(CScript* cScript) : cScript(cScript) {}
 
-    std::vector<HINSTANCE> hGetProcIDDLL;
-    std::string path;
+    CScript* cScript; 
+    int y;
 };

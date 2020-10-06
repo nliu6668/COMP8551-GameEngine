@@ -3,7 +3,21 @@
 
 #define EXPORT __declspec(dllexport)
 
-extern "C" __declspec(dllexport) void update()
+// extern "C" __declspec(dllexport) void update()
+// {
+//     std::cout << "Test Script Update Function" << std::endl;
+// }
+
+// __declspec(dllexport) void start()
+// {
+
+// }
+
+class __declspec(dllexport) TestScript 
 {
-    std::cout << "Test Script Update Function" << std::endl;
-}
+public:
+    void update2()
+    {
+
+    }
+};
