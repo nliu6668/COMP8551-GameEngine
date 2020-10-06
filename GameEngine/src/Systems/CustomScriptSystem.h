@@ -51,9 +51,9 @@ public:
         system(cgccCommand);
         
         // Load the dll ( It says there is an error but it compiles and works anyways :/ )
-        std::string path = "CustomScripts\\CustomTestScript.dll";
+        std::string path = "src\\CustomScripts\\" + filename + ".dll";
         const char * cpath = path.c_str();
-        hdll = LoadLibrary("src\\CustomScripts\\CustomTestScript.dll");
+        hdll = LoadLibrary(cpath);
 
         if (!hdll)
         {
