@@ -19,7 +19,7 @@ public:
         
         });
 
-        toFile(ccodestring);
+        toFile(ccodestring, "CustomTestScript");
 
         CScript* cscript;
         cscript = getCustomScriptObject("CustomTestScript");
