@@ -10,7 +10,6 @@
 #include "Systems/CustomScriptSystem.h"
 #include "Systems/RenderingSystem.h"
 
-
 #include <Windows.h>
 
 using namespace entityx;

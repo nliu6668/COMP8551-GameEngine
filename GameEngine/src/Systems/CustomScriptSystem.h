@@ -7,5 +7,5 @@ class CustomScriptSystem : public System<CustomScriptSystem> {
     public:
         void update(EntityManager& es, EventManager& events, TimeDelta dt) override {
             //update loop
-        }
+        }      
 };
