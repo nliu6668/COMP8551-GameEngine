@@ -16,25 +16,15 @@
 #include "vertexBufferLayout.h"
 #include "texture.h"
 
+#include "vendor/glm/glm.hpp"
+#include "vendor/glm/gtc/matrix_transform.hpp"
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 
-// settings
-const unsigned int SCR_WIDTH = 640;
-const unsigned int SCR_HEIGHT = 480;
-
-/*const char* vertexShaderSource = "#version 330 core\n"
-"layout (location = 0) in vec3 aPos;\n"
-"void main()\n"
-"{\n"
-"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-"}\0";
-const char* fragmentShaderSource = "#version 330 core\n"
-"out vec4 FragColor;\n"
-"void main()\n"
-"{\n"
-"   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-"}\n\0"; */
+// screen res
+const unsigned int SCR_WIDTH = 960;
+const unsigned int SCR_HEIGHT = 540;
 
 int main()
 {
@@ -74,93 +64,14 @@ int main()
         return -1;
     }
 
-/*
-    // build and compile our shader program
-    // ------------------------------------
-    // vertex shader
-    int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-    glCompileShader(vertexShader);
-    // check for shader compile errors
-    int success;
-    char infoLog[512];
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-    if (!success)
-    {
-        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-    }
-    // fragment shader
-    int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-    glCompileShader(fragmentShader);
-    // check for shader compile errors
-    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-    if (!success)
-    {
-        glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
-    }
-    // link shaders
-    int shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
-    // check for linking errors
-    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-    if (!success) {
-        glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
-    }
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
-
-    // set up vertex data (and buffer(s)) and configure vertex attributes
-    // ------------------------------------------------------------------
-    float vertices[] = {
-        -0.5f, -0.5f, 0.0f, // left  
-         0.5f, -0.5f, 0.0f, // right 
-         0.0f,  0.5f, 0.0f  // top   
-    };
-
-    unsigned int VBO, VAO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    // bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
-    glBindVertexArray(VAO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    // note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    // You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
-    // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
-    glBindVertexArray(0);
-
-
-    // uncomment this call to draw in wireframe polygons.
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-*/
-
     float positions[] = {
-        -0.5f, -0.5f, 0.0f, 0.0f,
-        0.5f, -0.5f, 1.0f, 0.0f,
-        0.5f, 0.5f, 1.0f, 1.0f,
-        -0.5f, 0.5f, 0.0f, 1.0f
+        //x       y      texcoords
+        -50.0f,  -50.0f, 0.0f, 0.0f,
+         50.0f, -50.0f, 1.0f, 0.0f,
+         50.0f,  50.0f, 1.0f, 1.0f,
+        -50.0f,  50.0f, 0.0f, 1.0f
     };
     
-    // float positions[] = {
-    //     -0.5f, -0.5f,
-    //     0.5f, -0.5f,
-    //     0.5f, 0.5f,
-    //     -0.5f, 0.5f
-    // };
-
     unsigned int indices[] = {
         0,1,2,
         2,3,0
@@ -173,7 +84,6 @@ int main()
     //create vertex buffer
     vertexArray va;
     vertexBuffer vb(positions, 4 * 4 * sizeof(float));
-    // vertexBuffer vb(positions, 4 * 2 * sizeof(float));
 
     vertexBufferLayout layout;
     layout.Push<float>(2);
@@ -184,21 +94,52 @@ int main()
     //create index buffer
     indexBuffer ib(indices, 6);
 
+
+
+    //Orthographic projection between (-2 and 2 (x) / -1.5 and 1.5 (y) / -1 and 1 (z))
+    //This is the view, if any of the positions are outside of this view, they won't be rendered
+    //EG. if position x is -0.5 and ortho view is -2  - 2:
+    //  then it will be a quarter of the way to the left since -0.5 is 1/4th of 2 which will make it 0.25
+    //1:1 pixel mapping for 960x540 res:
+    //  glm::mat4 proj = glm::ortho(0.0f, 960.0f, 0.0f, 540.0f, -1.0f, 1.0f);
+    
+    /*
+    Model matrix: defines position, rotation and scale of the vertices of the model in the world.
+    View matrix: defines position and orientation of the "camera".
+    Projection matrix: Maps what the "camera" sees to NDC, taking care of aspect ratio and perspective.
+    */
+    glm::mat4 proj = glm::ortho(0.0f, 960.0f, 0.0f, 540.0f, -1.0f, 1.0f);
+    glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0));
+    //Need to eventually move this model view out in to imgui
+
+    //Have to set uniforms to the same bind slot (default 0)
     shader shader("src/res/shaders/Basic.shader");
     shader.Bind();
-    //shader.setUniforms4f("u_Color", 0.8f, 0.3f, 0.8f, 1.0f);
+    //shader.setUniforms4f("u_Color", 0.8f, 0.3f, 0.8f, 1.0f); //sets colours
+    //shader.setUniformsMat4f("u_MVP", mvp); // sets textures
 
-    texture texture("src/res/textures/Sport.png"); 
-    texture.Bind();
+    texture textureTorb("src/res/textures/Torb.png"); 
+    texture textureSport("src/res/textures/Sport.png");
+    textureTorb.Bind();
     shader.setUniforms1i("u_Texture", 0);
-    //Have to set uniforms to the same bind slot (default 0)
 
+    /*
+    Shader binds program for the gpu to use and tells it what to do with data
+    VA = The Data itself.
+    VB = vertex data, positions, texture coords
+    IB = contains vertex indices
+    //Draw uses IB access VB and call shader program on all vertices individually
+    */
     va.Unbind();
     vb.Unbind();
     ib.Unbind();
     shader.Unbind();
 
     renderer renderer;
+
+    glm::vec3 translationA(200,200, 0);
+    glm::vec3 translationB(800,200, 0);
+
 
     float r = 0.0f;
     float increment = 0.05f;
@@ -207,21 +148,41 @@ int main()
     while (!glfwWindowShouldClose(window))
     {
         renderer.Clear();
-
         shader.Bind();
-        shader.setUniforms4f("u_Color", r, 0.3f, 0.8f, 1.0f);
+        //scope
+        {
+            textureTorb.Bind();
+            glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(translationA));
+            glm::mat4 mvp = proj * view * model; 
+            // shader.setUniforms4f("u_Color", r, 0.3f, 0.8f, 1.0f); //swaps colours
+            shader.setUniformsMat4f("u_MVP", mvp);
+            
+            renderer.Draw(va, ib, shader);
+        }
 
-        renderer.Draw(va, ib, shader);
+        {
+            textureSport.Bind();
+            glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(translationB));
+            glm::mat4 mvp = proj * view * model; 
+            // shader.setUniforms4f("u_Color", r, 0.3f, 0.8f, 1.0f); //swaps colours
+            shader.setUniformsMat4f("u_MVP", mvp);
 
+            renderer.Draw(va, ib, shader);
+        }
+
+        //swaps colours
         if(r > 1.0f)
             increment = -0.05f;
         else if (r < 0.0f)
             increment = 0.05f;
-        
+        translationB[0] -= r;
+
         r += increment;
 
-        
+        //Swap front and back buffers
         glfwSwapBuffers(window);
+
+        //Poll for and process events
         glfwPollEvents();
 
         /*
@@ -246,13 +207,6 @@ int main()
         glfwPollEvents();
         */
     }
-/*
-    // optional: de-allocate all resources once they've outlived their purpose:
-    // ------------------------------------------------------------------------
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
-    glDeleteProgram(shaderProgram);
-*/
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
     glfwTerminate();

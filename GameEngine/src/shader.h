@@ -2,6 +2,8 @@
 #include <string>
 #include <unordered_map>
 
+#include "vendor/glm/glm.hpp"
+
 struct ShaderProgramSource
 {
     std::string VertexSource;
@@ -25,9 +27,10 @@ class shader
 
         // Set uniforms
         //May need uniform templates and add different uniform types
-        void setUniforms1i(const std::string& name,int value);
-        void setUniforms1f(const std::string& name,float value);
-        void setUniforms4f(const std::string& name,float v0, float v1, float f2, float f3);
+        void setUniforms1i(const std::string& name, int value);
+        void setUniforms1f(const std::string& name, float value);
+        void setUniforms4f(const std::string& name, float v0, float v1, float f2, float f3);
+        void setUniformsMat4f(const std::string& name, const glm::mat4& matrix);
     private:
         ShaderProgramSource parseShader(const std::string& filepath);
         unsigned int compileShader(unsigned int type, const std::string& source);

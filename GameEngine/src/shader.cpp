@@ -114,7 +114,7 @@ void shader::Unbind() const
 void shader::setUniforms1i(const std::string& name, int value)
 {
     //Can't use GLCall here due to Assert error I think
-    glUniform1f(getUniformLocation(name), value);
+    GLCall(glUniform1i(getUniformLocation(name), value));
 }
 
 void shader::setUniforms1f(const std::string& name, float value)
@@ -125,6 +125,11 @@ void shader::setUniforms1f(const std::string& name, float value)
 void shader::setUniforms4f(const std::string& name,float v0, float v1, float v2, float v3)
 {
     GLCall(glUniform4f(getUniformLocation(name), v0, v1, v2, v3));
+}
+
+void shader::setUniformsMat4f(const std::string& name, const glm::mat4& matrix)
+{
+    GLCall(glUniformMatrix4fv(getUniformLocation(name), 1, GL_FALSE, &matrix[0][0]));
 }
 
 int shader::getUniformLocation(const std::string& name)
