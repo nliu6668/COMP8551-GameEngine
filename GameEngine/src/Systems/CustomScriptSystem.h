@@ -1,6 +1,7 @@
 #pragma once
 
 #include <fstream>
+#include <filesystem>
 #include <iostream>
 #include <string>
 #include <windows.h>
@@ -28,6 +29,8 @@ public:
         //     cscript->update();
         // else
         //     std::cout << "getCustomScriptObject failed" << std::endl;
+
+        cleanDir();
     }
 
     /**
@@ -84,6 +87,15 @@ public:
         cscript = static_cast<CScript*> ( createCustomScriptObject() ); 
         
         return cscript;
+    }
+
+    void cleanDir()
+    {
+        for (const auto& entry : std::filesystem::directory_iterator("src/CustomScripts"))
+        {
+            //entry.path()
+            // std::filesystem::remove_all(entry.path());
+        }
     }
 
 private:
