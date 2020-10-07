@@ -19,10 +19,10 @@ public:
         
         });
 
-        // toFile(ccodestring, "CustomTestScript");
+        // toFile(ccodestring, "ExampleCustomScript");
 
         // CScript* cscript;
-        // cscript = getCustomScriptObject("CustomTestScript");
+        // cscript = getCustomScriptObject("ExampleCustomScript");
         
         // if (cscript != NULL)
         //     cscript->update();
@@ -67,7 +67,7 @@ public:
 
         if (!hdll)
         {
-           std::cout << "Failed to load dll " << filename << std::endl;
+           Logger::getInstance() << "Error: Failed to load dll " + filename;
            return NULL;
         }
 
@@ -76,7 +76,7 @@ public:
 
         if (!createCustomScriptObject)
         {
-            std::cout << "Failed to find CreateCustomScriptObject in " << filename << std::endl;
+            Logger::getInstance() << "Error: Failed to find CreateCustomScriptObject in " + filename;
             return NULL;
         }
 

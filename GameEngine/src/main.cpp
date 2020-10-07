@@ -31,9 +31,6 @@ int main()
 {
     Engine& e = Engine::getInstance();
 
-    // entityx::Entity entity = e.entities.create();
-    // entity.assign<CustomScript>(new CustomTestScript());
-
     e.update();
     
     // glfw: initialize and configure
