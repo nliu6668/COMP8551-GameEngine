@@ -37,11 +37,84 @@ class PhysicsSystem : public System<PhysicsSystem> {
 
             //Step 2: Detect collisions
             std::vector<EntityPair> pairs = broadphase(es); //returns pairs of possible collisions
-            //narrowphase(pairs) should return pairs of entities that are colliding
+            std::vector<EntityPair> collidingPairs = narrowphase(pairs); //should return pairs of entities that are colliding
+
+            for (int i = 0; i < collidingPairs.size(); ++i) {
+                Logger::getInstance() << collidingPairs.at(i).a.id().id() << " colliding with " << collidingPairs.at(i).b.id().id() << "\n";
+            }
 
             //Step 3: apply physics to all entities and resolve all collisions from pairs
         }
     private:
+        std::vector<EntityPair> narrowphase(std::vector<EntityPair> possibleColl) {
+            std::vector<EntityPair> collisions;
+            for (EntityPair ep : possibleColl) {
+                //get each entity's colliders and transforms
+                ComponentHandle<BoxCollider> c1 = ep.a.component<BoxCollider>();
+                ComponentHandle<BoxCollider> c2 = ep.b.component<BoxCollider>();
+                ComponentHandle<Transform> c1T = ep.a.component<Transform>();
+                ComponentHandle<Transform> c2T = ep.b.component<Transform>();
+
+                //check if the colliders are colliding based on their type/shape
+                bool isColliding = CheckCollision(c1, c2, c1T, c2T);
+                if (isColliding) {
+                    collisions.push_back(ep);
+                }
+            }
+
+            return collisions;
+        }
+        #pragma region //Collision algorithms
+        //Box - Box
+        bool CheckCollision(ComponentHandle<BoxCollider>& c1, ComponentHandle<BoxCollider>& c2, ComponentHandle<Transform> c1T, ComponentHandle<Transform> c2T) {
+            return DetectAABB(c1->x + c1T->x, c1->y + c1T->y, c1->bbWidth, c1->bbHeight, c2->x + c2T->x, c2->y + c2T->y, c2->bbWidth, c2->bbHeight);
+        }
+
+        //Circle - Circle
+        bool CheckCollision(ComponentHandle<CircleCollider>& c1, ComponentHandle<CircleCollider>& c2, ComponentHandle<Transform> c1T, ComponentHandle<Transform> c2T) {
+            //TODO
+            return false;
+        }
+
+        //Capsule - Capsule
+        bool CheckCollision(ComponentHandle<CapsuleCollider>& c1, ComponentHandle<CapsuleCollider>& c2, ComponentHandle<Transform> c1T, ComponentHandle<Transform> c2T) {
+            //TODO
+            return false;
+        }
+
+        //Box - Circle
+        bool CheckCollision(ComponentHandle<BoxCollider>& c1, ComponentHandle<CircleCollider>& c2, ComponentHandle<Transform> c1T, ComponentHandle<Transform> c2T) {
+            //TODO
+            return false;
+        }
+
+        //Circle - Box (Calls Box - Circle)
+        bool CheckCollision(ComponentHandle<CircleCollider>& c1, ComponentHandle<BoxCollider>& c2, ComponentHandle<Transform> c1T, ComponentHandle<Transform> c2T) {
+            return CheckCollision(c2, c1, c2T, c1T);
+        }
+
+        //Box - Capsule
+        bool CheckCollision(ComponentHandle<BoxCollider>& c1, ComponentHandle<CapsuleCollider>& c2, ComponentHandle<Transform> c1T, ComponentHandle<Transform> c2T) {
+            //TODO
+            return false;
+        }
+
+        //Capsule - Box (Calls Box - Capsule)
+        bool CheckCollision(ComponentHandle<CapsuleCollider>& c1, ComponentHandle<BoxCollider>& c2, ComponentHandle<Transform> c1T, ComponentHandle<Transform> c2T) {
+            return CheckCollision(c2, c1, c2T, c1T);
+        }
+
+        //Circle - Capsule
+        bool CheckCollision(ComponentHandle<CircleCollider>& c1, ComponentHandle<CapsuleCollider>& c2, ComponentHandle<Transform> c1T, ComponentHandle<Transform> c2T) {
+            //TODO
+            return false;
+        }
+
+        //Capsule - Circle (Calls Circle - Capsule)
+        bool CheckCollision(ComponentHandle<CapsuleCollider>& c1, ComponentHandle<CircleCollider>& c2, ComponentHandle<Transform> c1T, ComponentHandle<Transform> c2T) {
+            return CheckCollision(c2, c1, c2T, c1T);
+        }
+
         bool DetectAABB(float x1, float y1, float width1, float height1,
             float x2, float y2, float width2, float height2){
             if (x1 <= x2 + width2 && x1 + width1 >= x2 && y1 <= y2 + height2 &&
@@ -50,6 +123,8 @@ class PhysicsSystem : public System<PhysicsSystem> {
             }
             return false;
         }
+
+        #pragma endregion //collision algorithms
 
         std::vector<EntityPair> broadphase(EntityManager& es) {
             //might need performance boost - right now it's sorting every frame,
@@ -66,8 +141,9 @@ class PhysicsSystem : public System<PhysicsSystem> {
             std::vector<SASObject> sas;
             for (Entity e : entities) {
                 ComponentHandle<BoxCollider> handle = e.component<BoxCollider>();
-                sas.emplace_back(SASObject(handle->b, e, true));
-                sas.emplace_back(SASObject(handle->e, e, false));
+                ComponentHandle<Transform> handleT = e.component<Transform>();
+                sas.emplace_back(SASObject(handle->b + handleT->x, e, true));
+                sas.emplace_back(SASObject(handle->e + handleT->x, e, false));
             }
             //pretty sure that each entity can only have one component of each type, i.e. no duplicates.
             //If this is the case it doesnt make sense for an entity to be able to have two different types of components either
@@ -98,7 +174,9 @@ class PhysicsSystem : public System<PhysicsSystem> {
                             Entity e2 = (*it2).e;
                             ComponentHandle<BoxCollider> c1 = e1.component<BoxCollider>();
                             ComponentHandle<BoxCollider> c2 = e2.component<BoxCollider>();
-                            if (DetectAABB(c1->x, c1->y, c1->bbWidth, c1->bbHeight, c2->x, c2->y, c2->bbWidth, c2->bbHeight)) {
+                            ComponentHandle<Transform> c1T = e1.component<Transform>();
+                            ComponentHandle<Transform> c2T = e2.component<Transform>();
+                            if (DetectAABB(c1->x + c1T->x, c1->y + c1T->y, c1->bbWidth, c1->bbHeight, c2->x + c2T->x, c2->y + c2T->y, c2->bbWidth, c2->bbHeight)) {
                                 possibleCollides.emplace_back(EntityPair((*it).e, (*it2).e));
                             }
                         }
