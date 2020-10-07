@@ -29,6 +29,10 @@ const unsigned int SCR_HEIGHT = 540;
 int main()
 {
     Engine& e = Engine::getInstance();
+
+    entityx::Entity entity = e.entities.create();
+    entity.assign<Position>(0, 0);
+
     e.update();
     
     // glfw: initialize and configure
