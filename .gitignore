@@ -2,6 +2,7 @@
 GameEngine/*.exe
 TempleAtonement/*.exe
 GameEngine/log.txt
+log.txt
 
 ### IDEs ###
 
