@@ -14,25 +14,24 @@ class CustomScriptSystem : public System<CustomScriptSystem> {
 public:
     void update(EntityManager& es, EventManager& events, TimeDelta dt) override 
     {
-        es.each<Transform>([dt, this](Entity entity, Transform &customScript) {
-
-            //customScript.cScript->update();
-            // std::cout << customScript.x << std::endl; 
-
-            // CScript* cscript;
-            // cscript = getCustomScriptObject("ExampleCustomScript", &entity);
-
-            // if (cscript != NULL)
-            //     cscript->update();
-            // else
-            //     std::cout << "getCustomScriptObject failed" << std::endl;
-
-            // std::cout << customScript.x << std::endl; 
-        });
-
         // toFile(ccodestring, "ExampleCustomScript");
 
-        cleanDir();
+        // es.each<Transform>([dt, this](Entity entity, Transform &customScript) {
+
+        //     std::cout << customScript.x << std::endl; 
+
+        //     CScript* cscript;
+        //     cscript = getCustomScriptObject("ExampleCustomScript", &entity);
+
+        //     if (cscript != NULL)
+        //         cscript->update();
+        //     else
+        //         std::cout << "getCustomScriptObject failed" << std::endl;
+
+        //     std::cout << customScript.x << std::endl; 
+        // });
+
+        // cleanDir();
     }
 
     /**
@@ -50,8 +49,10 @@ public:
     }
 
     /**
-     * 
+     * Builds dll file from Custom script and calls it's CreateCustomScriptObject function.
      * #PARAM filename: name of file that contains the C++ code
+     * #PARAM ex: Entity to be referenced in the Custom Script
+     * #RETURN CScript: Custom Script object
      */
     CScript* getCustomScriptObject(std::string filename, entityx::Entity* ex)
     {
@@ -107,19 +108,26 @@ public:
 private:
     std::string ccodestring = 
         "#include <iostream> \n"  
-        "#include \"../CScript.h\" \n\n"
+        "#include <entityx/entityx.h> \n"
+        "#include \"../CScript.h\" \n"
+        "#include \"../Components/Components.h\" \n\n"
         "#define EXPORT extern \"C\" __declspec(dllexport) \n\n"  
-        "class CustomTestScript : public CScript \n" 
+        "class ExampleCustomScript : public CScript \n" 
         "{ \n" 
+        "private: \n"
+        "   typedef CScript super; \n"
         "public: \n" 
+        "   ExampleCustomScript(entityx::Entity* ex) : super(ex) {} \n"
         "   void update(); \n" 
         "}; \n\n" 
-        "void CustomTestScript::update() \n" 
+        "void ExampleCustomScript::update() \n" 
         "{ \n" 
-        "   std::cout << \"Test Script Update Function\" << std::endl; \n" 
+        "   entityx::ComponentHandle<Transform> transform = entity->component<Transform>(); \n"
+        "   transform.get()->x = 2; \n"
+        "   // std::cout << entity->component<Transform>().get()->x << std::endl; \n" 
         "} \n\n"
-        "EXPORT CScript* CreateCustomScriptObject() \n"
+        "EXPORT CScript* CreateCustomScriptObject(entityx::Entity* ex) \n"
         "{ \n"
-        "   return new CustomTestScript(); \n"
+        "   return new ExampleCustomScript(ex); \n"
         "} \n";
 }; 
