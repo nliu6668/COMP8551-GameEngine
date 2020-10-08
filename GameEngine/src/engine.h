@@ -9,6 +9,8 @@
 #include "Systems/InputSystem.h"
 #include "Systems/CustomScriptSystem.h"
 #include "Systems/RenderingSystem.h"
+#include <glad/glad.h>
+#include <glfw/glfw3.h>
 
 
 #include <Windows.h>
@@ -18,8 +20,10 @@ class Engine : public EntityX {
     public:
         static Engine& getInstance();
 
-        //initialize must be called right before starting the game loop
-        void update();
+        void start();
+        const unsigned int SCR_WIDTH = 800;
+        const unsigned int SCR_HEIGHT = 600;
+        GLFWwindow* window;
     private:
         explicit Engine();
         std::chrono::high_resolution_clock clock;
@@ -27,6 +31,11 @@ class Engine : public EntityX {
         std::chrono::milliseconds deltaTime;
         bool initialized = false;
         void initialize();
+        void update();
+        void processInput(GLFWwindow* window);
+
+        // settings
+        
     
     public:
         //remove other constructors
