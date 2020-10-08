@@ -1,7 +1,7 @@
 #pragma once
 
 #include <fstream>
-#include <filesystem>
+#include <experimental/filesystem>
 #include <iostream>
 #include <string>
 #include <windows.h>
@@ -22,13 +22,13 @@ public:
 
         // toFile(ccodestring, "ExampleCustomScript");
 
-        // CScript* cscript;
-        // cscript = getCustomScriptObject("ExampleCustomScript");
+        CScript* cscript;
+        cscript = getCustomScriptObject("ExampleCustomScript");
         
-        // if (cscript != NULL)
-        //     cscript->update();
-        // else
-        //     std::cout << "getCustomScriptObject failed" << std::endl;
+        if (cscript != NULL)
+            cscript->update();
+        else
+            std::cout << "getCustomScriptObject failed" << std::endl;
 
         cleanDir();
     }
@@ -91,10 +91,10 @@ public:
 
     void cleanDir()
     {
-        for (const auto& entry : std::filesystem::directory_iterator("src/CustomScripts"))
+        for (const auto& entry : std::experimental::filesystem::directory_iterator("src/CustomScripts"))
         {
-            //entry.path()
-            // std::filesystem::remove_all(entry.path());
+            if (entry.path().string().compare("src/CustomScripts/ExampleCustomScript.cpp") != 0)
+                std::experimental::filesystem::remove_all(entry.path());
         }
     }
 
