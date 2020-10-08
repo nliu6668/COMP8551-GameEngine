@@ -31,6 +31,9 @@ int main()
 {
     Engine& e = Engine::getInstance();
 
+    entityx::Entity entity = e.entities.create();
+    entity.assign<Transform>(1, 1, 1, 1, 1, 1, 1, 1, 1);
+
     e.update();
     
     // glfw: initialize and configure

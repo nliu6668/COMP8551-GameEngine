@@ -7,28 +7,30 @@
 #include <windows.h>
 
 #include "entityx/entityx.h"
-#include "../Components/CustomScript.h"
+#include "../Components/Components.h"
 
 using namespace entityx;
 class CustomScriptSystem : public System<CustomScriptSystem> {
 public:
     void update(EntityManager& es, EventManager& events, TimeDelta dt) override 
     {
-        es.each<CustomScript>([dt](Entity entity, CustomScript &customScript) {
+        es.each<Transform>([dt, this](Entity entity, Transform &customScript) {
 
             //customScript.cScript->update();
-        
+            // std::cout << customScript.x << std::endl; 
+
+            // CScript* cscript;
+            // cscript = getCustomScriptObject("ExampleCustomScript", &entity);
+
+            // if (cscript != NULL)
+            //     cscript->update();
+            // else
+            //     std::cout << "getCustomScriptObject failed" << std::endl;
+
+            // std::cout << customScript.x << std::endl; 
         });
 
         // toFile(ccodestring, "ExampleCustomScript");
-
-        CScript* cscript;
-        cscript = getCustomScriptObject("ExampleCustomScript");
-        
-        if (cscript != NULL)
-            cscript->update();
-        else
-            std::cout << "getCustomScriptObject failed" << std::endl;
 
         cleanDir();
     }
@@ -51,15 +53,15 @@ public:
      * 
      * #PARAM filename: name of file that contains the C++ code
      */
-    CScript* getCustomScriptObject(std::string filename)
+    CScript* getCustomScriptObject(std::string filename, entityx::Entity* ex)
     {
         HINSTANCE hdll = NULL;
         CScript* cscript = NULL;
-        typedef void* (*pvScriptObject)();
+        typedef void* (*pvScriptObject)(entityx::Entity*);
         pvScriptObject createCustomScriptObject;
 
         // Create dll file 
-        std::string gccCommand = "g++ src/CustomScripts/" + filename + ".cpp -o src/CustomScripts/" + filename + ".dll -shared -fPIC";
+        std::string gccCommand = "g++ -Iincludes -Llibs src/CustomScripts/" + filename + ".cpp -o src/CustomScripts/" + filename + ".dll -shared -fPIC -lentityx";
         const char *cgccCommand = gccCommand.c_str();
         system(cgccCommand);
         
@@ -84,11 +86,15 @@ public:
         }
 
         // Create CScript Object
-        cscript = static_cast<CScript*> ( createCustomScriptObject() ); 
+        cscript = static_cast<CScript*> ( createCustomScriptObject(ex) ); 
         
         return cscript;
     }
 
+    /**
+     * Deletes all files with the exception of the ExampleCustomScript from the CustomScripts directory.
+     * Should be called when creating new scene or ending the program.
+     */
     void cleanDir()
     {
         for (const auto& entry : std::experimental::filesystem::directory_iterator("src/CustomScripts"))
