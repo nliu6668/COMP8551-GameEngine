@@ -19,20 +19,28 @@
 #include "../Components/ShaderComp.h"
 #include "../Components/TextureComp.h"
 #include "../Components/Translation.h"
+#include "../Components/Rotate.h"
 
 using namespace entityx;
 class RenderingSystem : public System<RenderingSystem> {
     public:
         void update(EntityManager& es, EventManager& events, TimeDelta dt) override {
             //update loop
-            es.each<Position, ShaderComp, TextureComp, Translation>([dt](Entity entity, Position &position, ShaderComp &shaderComp, TextureComp &textureComp, Translation &translationComp) {
+
+            renderer renderer;
+            renderer.Clear();
+            es.each<Position, ShaderComp, TextureComp, Translation, Rotate>([dt, renderer](
+                Entity entity, Position &position, ShaderComp &shaderComp, TextureComp &textureComp,
+                Translation &translationComp, Rotate &rotateComp) {
                 std::cout<<position.v0;
                 std::cout<<shaderComp.filepath;
                 std::cout<<textureComp.filepath;
                 std::cout<<translationComp.x;
+                std::cout<<rotateComp.angle;
                 //For large objects just 1 vertex buffer and multiple index buffers for different material types
                 //create vertex buffer
                 float positions[] = {
+                    //positions x //postions y  //texture coords
                     position.v0x, position.v0y, position.v0t1, position.v0t2,
                     position.v1x, position.v1y, position.v1t1, position.v1t2,
                     position.v2x, position.v2y, position.v2t1, position.v2t2,
@@ -60,7 +68,8 @@ class RenderingSystem : public System<RenderingSystem> {
                 //EG. if position x is -0.5 and ortho view is -2  - 2:
                 //  then it will be a quarter of the way to the left since -0.5 is 1/4th of 2 which will make it 0.25
                 //1:1 pixel mapping for 960x540 res:
-                //  glm::mat4 proj = glm::ortho(0.0f, 960.0f, 0.0f, 540.0f, -1.0f, 1.0f);
+                // EG: 
+                //      glm::mat4 proj = glm::ortho(0.0f, 960.0f, 0.0f, 540.0f, -1.0f, 1.0f);
                 
                 /*
                 Model matrix: defines position, rotation and scale of the vertices of the model in the world.
@@ -78,9 +87,6 @@ class RenderingSystem : public System<RenderingSystem> {
                 //shader.setUniformsMat4f("u_MVP", mvp); // sets textures
 
                 texture Texture(textureComp.filepath); 
-                // texture textureSport("src/res/textures/Sport.png");
-                Texture.Bind();
-                //textureComp.textureClass.Bind();
                 shader.setUniforms1i("u_Texture", 0);
 
                 /*
@@ -95,34 +101,19 @@ class RenderingSystem : public System<RenderingSystem> {
                 ib.Unbind();
                 shader.Unbind();
 
-                renderer renderer;
-
                 glm::vec3 translation(translationComp.x, translationComp.y, translationComp.z);
-                glm::vec3 translationB(800,200, 0);
 
-                renderer.Clear();
                 shader.Bind();
-                //scope
-                {
-                    Texture.Bind();
-                    //textureComp.textureClass.Bind();
-                    glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(translation));
-                    glm::mat4 mvp = proj * view * model; 
-                    // shader.setUniforms4f("u_Color", r, 0.3f, 0.8f, 1.0f); //swaps colours
-                    shader.setUniformsMat4f("u_MVP", mvp);
-                    
-                    renderer.Draw(va, ib, shader);
-                }
+                Texture.Bind();
+                glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(translation));
 
-                // {
-                //     textureSport.Bind();
-                //     glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(translationB));
-                //     glm::mat4 mvp = proj * view * model; 
-                //     // shader.setUniforms4f("u_Color", r, 0.3f, 0.8f, 1.0f); //swaps colours
-                //     shader.setUniformsMat4f("u_MVP", mvp);
+                model = glm::rotate(model, 3.141592f / 180 * rotateComp.angle, glm::vec3(rotateComp.x, rotateComp.y, rotateComp.z)); // where x, y, z is axis of rotation (e.g. 0 1 0)
 
-                //     renderer.Draw(va, ib, shader);
-                // }
+                glm::mat4 mvp = proj * view * model; 
+                shader.setUniformsMat4f("u_MVP", mvp);
+                
+                renderer.Draw(va, ib, shader);
+
                 std::cout << "\n";
 
             });

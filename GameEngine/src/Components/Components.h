@@ -10,3 +10,4 @@
 #include "Position.h"
 #include "ShaderComp.h"
 #include "TextureComp.h"
+#include "Rotate.h"
