@@ -1,5 +1,5 @@
 CXX			:= g++
-CXX_FLAGS 	:= -g --std=gnu++11
+CXX_FLAGS 	:= -g --std=gnu++14
 
 BIN			:= bin
 SRC			:= src

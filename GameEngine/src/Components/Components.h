@@ -8,3 +8,5 @@
 #include "CircleCollider.h"
 #include "CapsuleCollider.h"
 #include "Position.h"
+#include "ShaderComp.h"
+#include "TextureComp.h"

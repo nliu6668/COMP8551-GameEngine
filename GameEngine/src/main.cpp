@@ -41,7 +41,26 @@ int main()
         2,3,0
     );
 
-    //e.update();
+    entity.assign<ShaderComp>("src/res/shaders/Basic.shader");
+    //texture torbTexture("src/res/textures/Torb.png");
+    entity.assign<TextureComp>("src/res/textures/Torb.png");
+    entity.assign<Translation>(200, 200, 0);
+
+    entityx::Entity entity2 = e.entities.create();
+    entity2.assign<Position>(
+        -50.0f,  -50.0f, 0.0f, 0.0f,
+         50.0f, -50.0f, 1.0f, 0.0f,
+         50.0f,  50.0f, 1.0f, 1.0f,
+        -50.0f,  50.0f, 0.0f, 1.0f,
+
+        0,1,2,
+        2,3,0
+    );
+
+    entity2.assign<ShaderComp>("src/res/shaders/Basic.shader");
+    //texture sportTexture("src/res/textures/Sport.png");
+    entity2.assign<TextureComp>("src/res/textures/Sport.png");
+    entity2.assign<Translation>(800, 200, 0);
     
     // glfw: initialize and configure
     // ------------------------------
@@ -76,81 +95,8 @@ int main()
         return -1;
     }
 
-    float positions[] = {
-        //x       y      texcoords
-        -50.0f,  -50.0f, 0.0f, 0.0f,
-         50.0f, -50.0f, 1.0f, 0.0f,
-         50.0f,  50.0f, 1.0f, 1.0f,
-        -50.0f,  50.0f, 0.0f, 1.0f
-    };
-    
-    unsigned int indices[] = {
-        0,1,2,
-        2,3,0
-    };
-
     GLCall(glEnable(GL_BLEND));
     GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-
-    //For large objects just 1 vertex buffer and multiple index buffers for different material types
-    //create vertex buffer
-    vertexArray va;
-    vertexBuffer vb(positions, 4 * 4 * sizeof(float));
-
-    vertexBufferLayout layout;
-    layout.Push<float>(2);
-    layout.Push<float>(2);
-    va.AddBuffer(vb, layout);
-
-
-    //create index buffer
-    indexBuffer ib(indices, 6);
-
-
-
-    //Orthographic projection between (-2 and 2 (x) / -1.5 and 1.5 (y) / -1 and 1 (z))
-    //This is the view, if any of the positions are outside of this view, they won't be rendered
-    //EG. if position x is -0.5 and ortho view is -2  - 2:
-    //  then it will be a quarter of the way to the left since -0.5 is 1/4th of 2 which will make it 0.25
-    //1:1 pixel mapping for 960x540 res:
-    //  glm::mat4 proj = glm::ortho(0.0f, 960.0f, 0.0f, 540.0f, -1.0f, 1.0f);
-    
-    /*
-    Model matrix: defines position, rotation and scale of the vertices of the model in the world.
-    View matrix: defines position and orientation of the "camera".
-    Projection matrix: Maps what the "camera" sees to NDC, taking care of aspect ratio and perspective.
-    */
-    glm::mat4 proj = glm::ortho(0.0f, 960.0f, 0.0f, 540.0f, -1.0f, 1.0f);
-    glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0));
-    //Need to eventually move this model view out in to imgui
-
-    //Have to set uniforms to the same bind slot (default 0)
-    shader shader("src/res/shaders/Basic.shader");
-    shader.Bind();
-    //shader.setUniforms4f("u_Color", 0.8f, 0.3f, 0.8f, 1.0f); //sets colours
-    //shader.setUniformsMat4f("u_MVP", mvp); // sets textures
-
-    texture textureTorb("src/res/textures/Torb.png"); 
-    texture textureSport("src/res/textures/Sport.png");
-    textureTorb.Bind();
-    shader.setUniforms1i("u_Texture", 0);
-
-    /*
-    Shader binds program for the gpu to use and tells it what to do with data
-    VA = The Data itself.
-    VB = vertex data, positions, texture coords
-    IB = contains vertex indices
-    //Draw uses IB access VB and call shader program on all vertices individually
-    */
-    va.Unbind();
-    vb.Unbind();
-    ib.Unbind();
-    shader.Unbind();
-
-    renderer renderer;
-
-    glm::vec3 translationA(200,200, 0);
-    glm::vec3 translationB(800,200, 0);
 
 
     float r = 0.0f;
@@ -160,37 +106,15 @@ int main()
     while (!glfwWindowShouldClose(window))
     {
         e.update();
-        renderer.Clear();
-        shader.Bind();
-        //scope
-        {
-            textureTorb.Bind();
-            glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(translationA));
-            glm::mat4 mvp = proj * view * model; 
-            // shader.setUniforms4f("u_Color", r, 0.3f, 0.8f, 1.0f); //swaps colours
-            shader.setUniformsMat4f("u_MVP", mvp);
-            
-            renderer.Draw(va, ib, shader);
-        }
-
-        {
-            textureSport.Bind();
-            glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(translationB));
-            glm::mat4 mvp = proj * view * model; 
-            // shader.setUniforms4f("u_Color", r, 0.3f, 0.8f, 1.0f); //swaps colours
-            shader.setUniformsMat4f("u_MVP", mvp);
-
-            renderer.Draw(va, ib, shader);
-        }
 
         //swaps colours
-        if(r > 1.0f)
-            increment = -0.05f;
-        else if (r < 0.0f)
-            increment = 0.05f;
-        translationB[0] -= r;
+        // if(r > 1.0f)
+        //     increment = -0.05f;
+        // else if (r < 0.0f)
+        //     increment = 0.05f;
+        // translationB[0] -= r;
 
-        r += increment;
+        // r += increment;
 
         //Swap front and back buffers
         glfwSwapBuffers(window);
