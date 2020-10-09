@@ -42,7 +42,7 @@ class PhysicsSystem : public System<PhysicsSystem> {
             for (int i = 0; i < collidingPairs.size(); ++i) {
                 Logger::getInstance() << collidingPairs.at(i).a.id().id() << " colliding with " << collidingPairs.at(i).b.id().id() << "\n";
             }
-            Logger::getInstance() << "physics!\n";
+            //Logger::getInstance() << "physics!\n";
             //Step 3: apply physics to all entities and resolve all collisions from pairs
         }
     private:

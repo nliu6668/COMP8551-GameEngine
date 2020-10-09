@@ -1,5 +1,7 @@
 #include "Scene.h"
 
+#include "logger.h"
+
 #include <tmxlite/Map.hpp>
 #include <tmxlite/Layer.hpp>
 #include <tmxlite/TileLayer.hpp>
@@ -14,6 +16,7 @@ void Scene::load() {
     //ifstream file(fileName);
     //read file, parse it
 
+    Logger::getInstance() << "Loading a scene!\n";
 
     //populate list of entities with their components
 
