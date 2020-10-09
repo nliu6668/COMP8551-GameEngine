@@ -7,3 +7,4 @@
 #include "BoxCollider.h"
 #include "CircleCollider.h"
 #include "CapsuleCollider.h"
+#include "CustomScript.h"
