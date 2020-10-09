@@ -1,5 +1,10 @@
 #include "Scene.h"
 
+#include <tmxlite/Map.hpp>
+#include <tmxlite/Layer.hpp>
+#include <tmxlite/TileLayer.hpp>
+#include <tmxlite/ObjectGroup.hpp>
+
 string Scene::getName() {
     return name;
 }
