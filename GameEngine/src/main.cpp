@@ -30,6 +30,8 @@ int main()
 {
     Engine& e = Engine::getInstance();
 
+    
+
     entityx::Entity entity3 = e.entities.create();
     entity3.assign<Position>(
         -50.0f,  -50.0f, 0.0f, 0.0f,
@@ -45,6 +47,7 @@ int main()
     entity3.assign<TextureComp>("src/res/textures/tile_0028.png");
     entity3.assign<Translation>(0, 0, 0);
     entity3.assign<Rotate>(0, 0, 0, 1);
+    entity3.assign<Camera>(0.0f, 960.0f, 0.0f, 540.0f, -1.0f, 1.0f);
 
     entityx::Entity entity = e.entities.create();
     entity.assign<Position>(
@@ -61,6 +64,7 @@ int main()
     entity.assign<TextureComp>("src/res/textures/Torb.png");
     entity.assign<Translation>(200, 200, 0);
     entity.assign<Rotate>(0, 0, 0, 1);
+    entity.assign<Camera>(0.0f, 960.0f, 0.0f, 540.0f, -1.0f, 1.0f);
 
     entityx::Entity entity2 = e.entities.create();
     entity2.assign<Position>(
@@ -77,6 +81,7 @@ int main()
     entity2.assign<TextureComp>("src/res/textures/Sport.png");
     entity2.assign<Translation>(800, 200, 0);
     entity2.assign<Rotate>(180, 0, 0, 1);
+    entity2.assign<Camera>(0.0f, 960.0f, 0.0f, 540.0f, -1.0f, 1.0f);
     
     // glfw: initialize and configure
     // ------------------------------

@@ -2,6 +2,8 @@
 
 #include "entityx/entityx.h"
 #include <glad/glad.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include <iostream>
 #include "../renderer.h"
@@ -12,8 +14,8 @@
 #include "../vertexBufferLayout.h"
 #include "../texture.h"
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
+
+
 
 #include "../Components/Position.h"
 #include "../Components/ShaderComp.h"
@@ -33,11 +35,6 @@ class RenderingSystem : public System<RenderingSystem> {
             es.each<Position, ShaderComp, TextureComp, Translation, Rotate, Camera>([dt, renderer](
                 Entity entity, Position &position, ShaderComp &shaderComp, TextureComp &textureComp,
                 Translation &translationComp, Rotate &rotateComp, Camera &cameraComp) {
-                std::cout<<position.v0;
-                std::cout<<shaderComp.filepath;
-                std::cout<<textureComp.filepath;
-                std::cout<<translationComp.x;
-                std::cout<<rotateComp.angle;
                 //For large objects just 1 vertex buffer and multiple index buffers for different material types
                 //create vertex buffer
                 float positions[] = {
@@ -116,10 +113,6 @@ class RenderingSystem : public System<RenderingSystem> {
                 shader.setUniformsMat4f("u_MVP", mvp);
                 
                 renderer.Draw(va, ib, shader);
-
-                std::cout << "\n";
-
             });
-            std::cout << "\n";
         }
 };
