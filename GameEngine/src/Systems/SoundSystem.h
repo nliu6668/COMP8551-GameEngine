@@ -2,6 +2,7 @@
 
 #include "entityx/entityx.h"
 #include "../Components/Sound.h"
+#include "../Components/AudioSource.h"
 #include <Bass\bass.h>
 
 using namespace entityx;
@@ -11,33 +12,43 @@ class SoundSystem : public System<SoundSystem> {
         Sound *sound;
         void update(EntityManager& es, EventManager& events, TimeDelta dt) override {
             //update loop
-            if (bgm == NULL || sound == NULL) {
-                std::cout << "System Init" << std::endl;
-                if (initSystem()) {
-                    BASS_SetVolume(1);
-                    bgm = new Sound("resource/Lizz Robinett - Hide and Seek.mp3", false);
-                    bgm->setVolumn(0.1f);
-                    sound = new Sound("resource/kick-trimmed.wav", true);
-                    sound->setVolumn(1.0f);
+            auto entities = es.entities_with_components<AudioSource>();
+            if (!initialized) {
+                initSystem();
+                for (Entity e : entities) {
+                    ComponentHandle<AudioSource> handle = e.component<AudioSource>();
+                    handle->sound->setUpSound();
+                    if (handle->sound->name == "resource/Lizz Robinett - Hide and Seek.mp3") {
+                        handle->setVolume(0.1f);
+                    }
+                    handle->sound->play();
                 }
             }
-            bgm->play();
-            sound->play();
+
+            for (Entity e : entities) {
+                ComponentHandle<AudioSource> handle = e.component<AudioSource>();
+                handle->sound->setVolumn(handle->volume);
+            }
         }
 
-        bool initSystem() {
+        void initSystem() {
             if (!BASS_Init(-1, 44100, 0, NULL, NULL)) {
-                std::cout << "There is no device to use" << std::endl;
-                return false;
+                Logger::getInstance() << "There is no device to use" << "\n\r";
             }
             else{
-                return true;
+                initialized = true;
             }
         }
 
-        void cleanup() {
-            bgm->cleanUp();
-            sound->cleanUp();
+        void cleanup(EntityManager& es) {
+            auto entities = es.entities_with_components<AudioSource>();
+            for (Entity e : entities) {
+                ComponentHandle<AudioSource> handle = e.component<AudioSource>();
+                handle->cleanUp();
+            }
             BASS_Free();
         }
+
+    private:
+        bool initialized = false;
 };
