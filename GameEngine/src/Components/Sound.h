@@ -1,8 +1,17 @@
 #pragma once
 
 #include <Bass\bass.h>
+#include "../logger.h"
 struct Sound {
-    Sound(const char* name, bool ifLoop = false) : name(name), ifLoop(ifLoop) {
+    Sound(const char* name, bool ifLoop = false) : name(name), ifLoop(ifLoop) {}
+
+    HCHANNEL channel;
+    HSAMPLE sample;
+    const char* name; //path of the file
+    bool ifLoop; //set if loop the sound
+    float volume = -1; //volumn of the sound
+
+    void setUpSound() {
         if (ifLoop == true) {
             sample = BASS_SampleLoad(false, name, 0, 0, 1, BASS_SAMPLE_LOOP);
         }
@@ -13,22 +22,22 @@ struct Sound {
         BASS_ChannelGetAttribute(channel, BASS_ATTRIB_VOL, &volume);
     }
 
-    HCHANNEL channel;
-    HSAMPLE sample;
-    const char* name; //path of the file
-    bool ifLoop; //set if loop the sound
-    float volume; //volumn of the sound
-
     void play() {
-        BASS_ChannelPlay(channel, FALSE);
+        if (!BASS_ChannelPlay(channel, FALSE)) {
+            Logger::getInstance() << "Play error: " << BASS_ErrorGetCode() << " \n\r";
+        }
     }
 
     void pause() {
-        BASS_ChannelPause(channel);
+        if (!BASS_ChannelPause(channel)) {
+            Logger::getInstance() << "Play error: " << BASS_ErrorGetCode() << " \n\r";
+        }
     }
 
     void stop() {
-        BASS_ChannelStop(channel);
+        if (!BASS_ChannelStop(channel)) {
+            Logger::getInstance() << "Play error: " << BASS_ErrorGetCode() << " \n\r";
+        }
     }
 
     void setIfLoop(bool loop) {
@@ -45,10 +54,6 @@ struct Sound {
     void setVolumn(float vol) {
         volume = vol;
         BASS_ChannelSetAttribute(channel, BASS_ATTRIB_VOL, volume);
-    }
-
-    void setSpeed(float speed) {
-        //BASS_ChannelSetAttribute(channel, BASS_ATTRIB_MUSIC_SPEED, speed);
     }
 
     void cleanUp() {
