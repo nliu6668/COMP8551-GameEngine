@@ -20,6 +20,7 @@
 #include "../Components/TextureComp.h"
 #include "../Components/Translation.h"
 #include "../Components/Rotate.h"
+#include "../Components/Camera.h"
 
 using namespace entityx;
 class RenderingSystem : public System<RenderingSystem> {
@@ -29,9 +30,9 @@ class RenderingSystem : public System<RenderingSystem> {
 
             renderer renderer;
             renderer.Clear();
-            es.each<Position, ShaderComp, TextureComp, Translation, Rotate>([dt, renderer](
+            es.each<Position, ShaderComp, TextureComp, Translation, Rotate, Camera>([dt, renderer](
                 Entity entity, Position &position, ShaderComp &shaderComp, TextureComp &textureComp,
-                Translation &translationComp, Rotate &rotateComp) {
+                Translation &translationComp, Rotate &rotateComp, Camera &cameraComp) {
                 std::cout<<position.v0;
                 std::cout<<shaderComp.filepath;
                 std::cout<<textureComp.filepath;
@@ -76,7 +77,9 @@ class RenderingSystem : public System<RenderingSystem> {
                 View matrix: defines position and orientation of the "camera".
                 Projection matrix: Maps what the "camera" sees to NDC, taking care of aspect ratio and perspective.
                 */
-                glm::mat4 proj = glm::ortho(0.0f, 960.0f, 0.0f, 540.0f, -1.0f, 1.0f);
+
+                //Make projection matrix editable
+                glm::mat4 proj = glm::ortho(cameraComp.lf, cameraComp.rf, cameraComp.bf, cameraComp.tf, cameraComp.dnp, cameraComp.dfp);
                 glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0));
                 //Need to eventually move this model view out in to imgui
 

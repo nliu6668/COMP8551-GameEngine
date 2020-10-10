@@ -11,3 +11,4 @@
 #include "ShaderComp.h"
 #include "TextureComp.h"
 #include "Rotate.h"
+#include "Camera.h"

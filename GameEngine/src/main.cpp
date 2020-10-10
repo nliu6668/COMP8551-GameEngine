@@ -114,23 +114,11 @@ int main()
     GLCall(glEnable(GL_BLEND));
     GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
-
-    float r = 0.0f;
-    float increment = 0.05f;
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
     {
         e.update();
-
-        //swaps colours
-        // if(r > 1.0f)
-        //     increment = -0.05f;
-        // else if (r < 0.0f)
-        //     increment = 0.05f;
-        // translationB[0] -= r;
-
-        // r += increment;
 
         //Swap front and back buffers
         glfwSwapBuffers(window);
