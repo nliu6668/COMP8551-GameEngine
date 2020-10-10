@@ -14,9 +14,6 @@
 #include "../vertexBufferLayout.h"
 #include "../texture.h"
 
-
-
-
 #include "../Components/Position.h"
 #include "../Components/ShaderComp.h"
 #include "../Components/TextureComp.h"
@@ -29,7 +26,6 @@ class RenderingSystem : public System<RenderingSystem> {
     public:
         void update(EntityManager& es, EventManager& events, TimeDelta dt) override {
             //update loop
-
             renderer renderer;
             renderer.Clear();
             es.each<Position, ShaderComp, TextureComp, Translation, Rotate, Camera>([dt, renderer](
@@ -111,7 +107,6 @@ class RenderingSystem : public System<RenderingSystem> {
 
                 glm::mat4 mvp = proj * view * model; 
                 shader.setUniformsMat4f("u_MVP", mvp);
-                
                 renderer.Draw(va, ib, shader);
             });
         }

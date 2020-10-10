@@ -12,3 +12,4 @@
 #include "TextureComp.h"
 #include "Rotate.h"
 #include "Camera.h"
+#include "CustomScript.h"
