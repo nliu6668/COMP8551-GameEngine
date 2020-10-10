@@ -34,12 +34,12 @@ Engine::Engine() {
     systems.configure();
 }
 
-// screen res
-const unsigned int SCR_WIDTH = 960;
-const unsigned int SCR_HEIGHT = 540;
 
 void Engine::initialize() {
     //initialize
+    // screen res
+    const unsigned int SCR_WIDTH = 960;
+    const unsigned int SCR_HEIGHT = 540;
 
     //Put setup here
     
@@ -52,7 +52,7 @@ void Engine::initialize() {
 
     // glfw window creation
     // --------------------
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Mada Mada", NULL, NULL);
+    window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Mada Mada", NULL, NULL);
     if (window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -62,7 +62,6 @@ void Engine::initialize() {
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1); //VSYNC
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-
 
     // glad: load all OpenGL function pointers
     // ---------------------------------------
@@ -74,7 +73,6 @@ void Engine::initialize() {
 
     GLCall(glEnable(GL_BLEND));
     GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-
 
     lastTime = std::chrono::duration_cast<std::chrono::milliseconds>(clock.now().time_since_epoch());
     initialized = true;
@@ -99,9 +97,6 @@ void Engine::update() {
     systems.update<SoundSystem>(dt);
     systems.update<CustomScriptSystem>(dt);
     systems.update<RenderingSystem>(dt);
-    glfwSwapBuffers(window); //probs in renderingSystem
-    
-    glfwPollEvents();
 }
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
@@ -117,11 +112,27 @@ void Engine::start() {
 
     entityx::Entity entity = Engine::getInstance().entities.create();
 
+    entity.assign<Position>(
+        -50.0f,  -50.0f, 0.0f, 0.0f,
+         50.0f, -50.0f, 1.0f, 0.0f,
+         50.0f,  50.0f, 1.0f, 1.0f,
+        -50.0f,  50.0f, 0.0f, 1.0f,
+
+        0,1,2,
+        2,3,0
+    );
+
+    entity.assign<ShaderComp>("src/res/shaders/Basic.shader");
+    entity.assign<TextureComp>("src/res/textures/Sport.png");
+    entity.assign<Translation>(50, 50, 0);
+    entity.assign<Rotate>(0, 0, 0, 1);
+    entity.assign<Camera>(0.0f, 960.0f, 0.0f, 540.0f, -1.0f, 1.0f);
+
     SceneManager::getInstance().start();
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
-    {
+    {   
         update();
 
         //Swap front and back buffers
