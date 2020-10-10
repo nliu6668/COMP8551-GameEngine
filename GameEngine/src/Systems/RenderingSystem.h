@@ -12,8 +12,8 @@
 #include "../vertexBufferLayout.h"
 #include "../texture.h"
 
-#include "../vendor/glm/glm.hpp"
-#include "../vendor/glm/gtc/matrix_transform.hpp"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include "../Components/Position.h"
 #include "../Components/ShaderComp.h"

@@ -2,7 +2,7 @@
 #include <string>
 #include <unordered_map>
 
-#include "vendor/glm/glm.hpp"
+#include <glm/glm.hpp>
 
 struct ShaderProgramSource
 {
