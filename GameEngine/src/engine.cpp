@@ -22,10 +22,6 @@ void Engine::initialize() {
 void Engine::update() {
     if (!initialized) {
         initialize();
-        Entity e1 = entities.create();
-        e1.assign<AudioSource>(new Sound("resource/Lizz Robinett - Hide and Seek.mp3"));
-        Entity e2 = entities.create();
-        e2.assign<AudioSource>(new Sound("resource/kick-trimmed.wav", true));
     }
 
     deltaTime = std::chrono::duration_cast<std::chrono::milliseconds>(clock.now().time_since_epoch()) - lastTime;
