@@ -1,16 +1,24 @@
 #pragma once
-
+ 
 #include "entityx/entityx.h"
 #include "../Components/Sound.h"
 #include <Bass\bass.h>
+#include "AudioMixer.h"
+#include <Windows.h>
 
 using namespace entityx;
+
 class SoundSystem : public System<SoundSystem> {
     public:
+ 
+
         Sound *bgm;
         Sound *sound;
+        AudioMixer *audiomix;
         void update(EntityManager& es, EventManager& events, TimeDelta dt) override {
             //update loop
+
+
             if (bgm == NULL || sound == NULL) {
                 std::cout << "System Init" << std::endl;
                 if (initSystem()) {
@@ -19,10 +27,18 @@ class SoundSystem : public System<SoundSystem> {
                     bgm->setVolumn(0.1f);
                     sound = new Sound("resource/kick-trimmed.wav", true);
                     sound->setVolumn(1.0f);
+      
                 }
             }
-            bgm->play();
-            sound->play();
+           
+            
+
+            if (GetAsyncKeyState(VK_UP) & 0x8000)
+            {
+                bgm->play();
+                sound->play();
+            }
+            
         }
 
         bool initSystem() {
