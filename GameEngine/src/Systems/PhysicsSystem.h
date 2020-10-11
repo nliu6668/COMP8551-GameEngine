@@ -50,6 +50,15 @@ class PhysicsSystem : public System<PhysicsSystem> {
             for(int i = 0; i < collidingPairs.size(); ++i) {
                 PerformCollisionCalculations(collidingPairs.at(i));
             }
+            auto entities = es.entities_with_components<Rigidbody_2D>();
+
+            for(Entity e : entities){
+                //Update thrust by getting force value from input
+                float thrust = 0.0f;
+
+                //Update velocities and accelerations
+                UpdateVelocityAndAcceleration(e, dt, thrust);
+            }
         }
     private:
         std::vector<EntityPair> narrowphase(std::vector<EntityPair> possibleColl) {
@@ -166,6 +175,22 @@ class PhysicsSystem : public System<PhysicsSystem> {
             aRB->velocityY = vAFY;
             bRB->velocityX = vBFX;
             bRB->velocityY = vBFY;
+
+            return;
+        }
+
+        void UpdateVelocityAndAcceleration(Entity e, TimeDelta dt, float thrust = 0.0f){
+            ComponentHandle<Rigidbody_2D> rb = e.component<Rigidbody_2D>();
+            float tau = rb->mass / rb->linDrag;
+            float t = (float)dt;
+            //update velocity
+            rb->velocityX = (1.0f/rb->linDrag)*(thrust - expf(-1 * rb->linDrag * t / rb->mass) * (thrust - rb->linDrag * rb->velocityX));
+            rb->velocityY = (1.0f/rb->linDrag)*(thrust - expf(-1 * rb->linDrag * t / rb->mass) * (thrust - rb->linDrag * rb->velocityY));
+            //update acceleration
+            rb->accelerationX = (thrust - rb->linDrag * rb->velocityX) / rb->mass;
+            rb->accelerationY = (thrust - rb->linDrag * rb->velocityY) / rb->mass;
+
+            return;
         }
 
         #pragma endregion //collision algorithms
