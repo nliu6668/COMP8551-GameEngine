@@ -19,6 +19,7 @@ struct Sound {
     bool ifLoop; //set if loop the sound
     float volume; //volumn of the sound
 
+
     void play() {
         BASS_ChannelPlay(channel, FALSE);
     }

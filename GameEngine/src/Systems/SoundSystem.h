@@ -27,18 +27,31 @@ class SoundSystem : public System<SoundSystem> {
                     bgm->setVolumn(0.1f);
                     sound = new Sound("resource/kick-trimmed.wav", true);
                     sound->setVolumn(1.0f);
+					
       
                 }
             }
-           
-            
+				//bgm->play();
+				sound->play();
 
-            if (GetAsyncKeyState(VK_UP) & 0x8000)
-            {
-                bgm->play();
-                sound->play();
-            }
-            
+                HSTREAM stream = BASS_StreamCreateFile(false, "resource/Lizz Robinett - Hide and Seek.mp3", 0, 0, 0);
+                
+                BASS_ChannelPlay(stream, true);
+
+				BASS_DX8_DISTORTION distort;
+				distort.fGain = -60;
+				distort.fEdge = 100;
+				distort.fPostEQCenterFrequency = 8000;
+				distort.fPostEQBandwidth = 8000;
+				distort.fPreLowpassCutoff = 8000;
+                
+                
+                //audiomix->setdistortion(stream);
+
+//                BASS_ChannelSetFX(stream, BASS_FX_DX8_DISTORTION, 1);
+		
+            //    BASS_ChannelSetAttribute(sound->channel, BASS_ATTRIB_MUSIC_BPM, 255);
+			
         }
 
         bool initSystem() {
