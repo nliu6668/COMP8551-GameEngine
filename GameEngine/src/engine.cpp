@@ -1,6 +1,26 @@
 #include "engine.h"
 #include "SceneManager.h"
 
+#include <glad/glad.h>
+#include <glfw/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <sstream>
+
+#include "renderer.h"
+#include "vertexBuffer.h"
+#include "indexBuffer.h"
+#include "vertexArray.h"
+#include "shader.h"
+#include "vertexBufferLayout.h"
+#include "texture.h"
+
+
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 //add any method implementations here
 
@@ -14,9 +34,15 @@ Engine::Engine() {
     systems.configure();
 }
 
+
 void Engine::initialize() {
     //initialize
+    // screen res
+    const unsigned int SCR_WIDTH = 960;
+    const unsigned int SCR_HEIGHT = 540;
 
+    //Put setup here
+    
     // glfw: initialize and configure
     // ------------------------------
     glfwInit();
@@ -24,29 +50,29 @@ void Engine::initialize() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-#ifdef __APPLE__
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-#endif
-
     // glfw window creation
     // --------------------
-    window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
+    window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Mada Mada", NULL, NULL);
     if (window == NULL)
     {
-        Logger::getInstance() << "Failed to create GLFW window" << "\n";
+        std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
-        throw "Failed to create GLFW window";
+        return;
     }
     glfwMakeContextCurrent(window);
+    glfwSwapInterval(1); //VSYNC
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     // glad: load all OpenGL function pointers
     // ---------------------------------------
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
-        Logger::getInstance() << "Failed to initialize GLAD" << "\n";
-        throw "Failed to initialize GLAD";
+        std::cout << "Failed to initialize GLAD" << std::endl;
+        return;
     }
+
+    GLCall(glEnable(GL_BLEND));
+    GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
     lastTime = std::chrono::duration_cast<std::chrono::milliseconds>(clock.now().time_since_epoch());
     initialized = true;
@@ -71,9 +97,6 @@ void Engine::update() {
     systems.update<SoundSystem>(dt);
     systems.update<CustomScriptSystem>(dt);
     systems.update<RenderingSystem>(dt);
-    glfwSwapBuffers(window); //probs in renderingSystem
-    
-    glfwPollEvents();
 }
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
@@ -87,11 +110,47 @@ void Engine::processInput(GLFWwindow* window)
 void Engine::start() {
     Logger::getInstance() << "Start of game engine.\n";
 
+    entityx::Entity entity = Engine::getInstance().entities.create();
+
+    entity.assign<Position>(
+        -50.0f,  -50.0f, 0.0f, 0.0f,
+         50.0f, -50.0f, 1.0f, 0.0f,
+         50.0f,  50.0f, 1.0f, 1.0f,
+        -50.0f,  50.0f, 0.0f, 1.0f,
+
+        0,1,2,
+        2,3,0
+    );
+
+    entity.assign<ShaderComp>("src/res/shaders/Basic.shader");
+    entity.assign<TextureComp>("src/res/textures/Sport.png");
+    entity.assign<Translation>(50, 50, 0);
+    entity.assign<Rotate>(0, 0, 0, 1);
+    entity.assign<Camera>(0.0f, 960.0f, 0.0f, 540.0f, -1.0f, 1.0f);
+
     SceneManager::getInstance().start();
+    // render loop
+    // -----------
     while (!glfwWindowShouldClose(window))
-    {
+    {   
         update();
+
+        //Swap front and back buffers
+        glfwSwapBuffers(window);
+
+        //Poll for and process events
+        glfwPollEvents();
+
+        /*
+        // input
+        // -----
+        processInput(window);
+        */
     }
+    // glfw: terminate, clearing all previously allocated GLFW resources.
+    // ------------------------------------------------------------------
+    glfwTerminate();
+    return;
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
