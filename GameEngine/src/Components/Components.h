@@ -13,3 +13,4 @@
 #include "Rotate.h"
 #include "Camera.h"
 #include "CustomScript.h"
+#include "AudioSource.h"
