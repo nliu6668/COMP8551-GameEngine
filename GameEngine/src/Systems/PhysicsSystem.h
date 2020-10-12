@@ -1,5 +1,7 @@
 #pragma once
 
+#define _USE_MATH_DEFINES
+
 #include "entityx/entityx.h"
 #include <vector>
 #include <algorithm>
@@ -7,6 +9,7 @@
 // #include "PhysicsFunctions.h"
 #include "../logger.h"
 #include <string>
+#include <math.h>
 
 using namespace entityx;
 
@@ -44,6 +47,18 @@ class PhysicsSystem : public System<PhysicsSystem> {
             }
             Logger::getInstance() << "physics!\n";
             //Step 3: apply physics to all entities and resolve all collisions from pairs
+            for(int i = 0; i < collidingPairs.size(); ++i) {
+                PerformCollisionCalculations(collidingPairs.at(i));
+            }
+            auto entities = es.entities_with_components<Rigidbody_2D>();
+
+            for(Entity e : entities){
+                //Update thrust by getting force value from input
+                float thrust = 0.0f;
+
+                //Update velocities and accelerations
+                UpdateVelocityAndAcceleration(e, dt, thrust);
+            }
         }
     private:
         std::vector<EntityPair> narrowphase(std::vector<EntityPair> possibleColl) {
@@ -122,6 +137,60 @@ class PhysicsSystem : public System<PhysicsSystem> {
                 return true;
             }
             return false;
+        }
+
+        void PerformCollisionCalculations(EntityPair collision) {
+            ComponentHandle<Transform> aTrans = collision.a.component<Transform>();
+            ComponentHandle<Transform> bTrans = collision.b.component<Transform>();
+            ComponentHandle<Rigidbody_2D> aRB = collision.a.component<Rigidbody_2D>();
+            ComponentHandle<Rigidbody_2D> bRB = collision.b.component<Rigidbody_2D>();
+
+            float aMass = aRB->mass;
+            float bMass = bRB->mass;
+
+            float xDist = (bTrans->x + bRB->cmX) - (aTrans->x + aRB->cmX);
+            float yDist = (bTrans->y + bRB->cmY) - (aTrans->y + aRB->cmY);
+
+            float phi = atan2f(yDist, xDist);
+
+            float vAI = sqrtf(powf(aRB->velocityX, 2.0f) + powf(aRB->velocityY, 2.0f));
+            float iThetaA = atan2f(aRB->velocityY, aRB->velocityX);
+
+            float vBI = sqrtf(powf(bRB->velocityX, 2.0f) + powf(bRB->velocityY, 2.0f));
+            float iThetaB = atan2f(bRB->velocityY, bRB->velocityX);
+
+            float vAFX = ((vAI * cosf(iThetaA - phi) * (aMass - bMass) + 2 * bMass * vBI * cosf(iThetaB - phi)) / (aMass + bMass)) * 
+            cosf(phi) + vAI * sinf(iThetaA - phi) * cosf(phi + M_PI_2);
+
+            float vAFY = ((vAI * cosf(iThetaA - phi) * (aMass - bMass) + 2 * bMass * vBI * cosf(iThetaB - phi)) / (aMass + bMass)) * 
+            sinf(phi) + vAI * sinf(iThetaA - phi) * sinf(phi + M_PI_2);
+
+            float vBFX = ((vBI * cosf(iThetaB - phi) * (bMass - aMass) + 2 * aMass * vAI * cosf(iThetaA - phi)) / (aMass + bMass)) * 
+            cosf(phi) + vBI * sinf(iThetaB - phi) * cosf(phi + M_PI_2);
+
+            float vBFY = ((vBI * cosf(iThetaB - phi) * (bMass - aMass) + 2 * aMass * vAI * cosf(iThetaA - phi)) / (aMass + bMass)) * 
+            sinf(phi) + vBI * sinf(iThetaB - phi) * sinf(phi + M_PI_2);
+
+            aRB->velocityX = vAFX;
+            aRB->velocityY = vAFY;
+            bRB->velocityX = vBFX;
+            bRB->velocityY = vBFY;
+
+            return;
+        }
+
+        void UpdateVelocityAndAcceleration(Entity e, TimeDelta dt, float thrust = 0.0f){
+            ComponentHandle<Rigidbody_2D> rb = e.component<Rigidbody_2D>();
+            float tau = rb->mass / rb->linDrag;
+            float t = (float)dt;
+            //update velocity
+            rb->velocityX = (1.0f/rb->linDrag)*(thrust - expf(-1 * rb->linDrag * t / rb->mass) * (thrust - rb->linDrag * rb->velocityX));
+            rb->velocityY = (1.0f/rb->linDrag)*(thrust - expf(-1 * rb->linDrag * t / rb->mass) * (thrust - rb->linDrag * rb->velocityY));
+            //update acceleration
+            rb->accelerationX = (thrust - rb->linDrag * rb->velocityX) / rb->mass;
+            rb->accelerationY = (thrust - rb->linDrag * rb->velocityY) / rb->mass;
+
+            return;
         }
 
         #pragma endregion //collision algorithms
