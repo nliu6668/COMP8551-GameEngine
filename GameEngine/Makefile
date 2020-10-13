@@ -10,7 +10,9 @@ ifeq ($(UNAME), Darwin)
 else
 
 LIB			:= libs
+
 LIBRARIES	:= -lglfw3 -lgdi32 -lentityx -lbass -lstdc++fs -static-libgcc -static-libstdc++
+
 
 endif
 

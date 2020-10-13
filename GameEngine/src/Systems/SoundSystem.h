@@ -1,15 +1,25 @@
 #pragma once
-
+ 
 #include "entityx/entityx.h"
 #include "../Components/Sound.h"
+
+#include "AudioMixer.h"
+#include <Windows.h>
 #include "../Components/AudioSource.h"
 #include <Bass\bass.h>
 
 using namespace entityx;
+
 class SoundSystem : public System<SoundSystem> {
     public:
+ 
+
+        Sound *bgm;
+        Sound *sound;
+        AudioMixer *audiomix;
         void update(EntityManager& es, EventManager& events, TimeDelta dt) override {
             //update loop
+
             auto entities = es.entities_with_components<AudioSource>();
             if (!initialized) {
                 initSystem();

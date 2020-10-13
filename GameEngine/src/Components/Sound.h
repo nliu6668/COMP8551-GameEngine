@@ -44,6 +44,7 @@ struct Sound {
 
     void setIfLoop(bool loop) {
         ifLoop = loop;
+
         if (BASS_ChannelFlags(sound, BASS_SAMPLE_LOOP, BASS_SAMPLE_LOOP) == -1) {
             Logger::getInstance() << "Play error: " << BASS_ErrorGetCode() << " \t";
         }
@@ -58,5 +59,6 @@ struct Sound {
         BASS_StreamFree(sound);
         delete name;
         free(path);
+
     }
 };
