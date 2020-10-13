@@ -63,6 +63,10 @@ void Engine::initialize() {
     glfwSwapInterval(1); //VSYNC
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
+    glfwSetInputMode(window, GLFW_STICKY_KEYS, 1);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    glfwSetInputMode(window, GLFW_STICKY_MOUSE_BUTTONS, 1);
+
     // glad: load all OpenGL function pointers
     // ---------------------------------------
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -91,7 +95,7 @@ void Engine::update() {
     //do updates
     // input
     // -----
-    processInput(window); //probs in InputSystem
+    //processInput(window); //probs in InputSystem
     systems.update<InputSystem>(dt);
     systems.update<PhysicsSystem>(dt);
     systems.update<SoundSystem>(dt);
@@ -99,13 +103,52 @@ void Engine::update() {
     systems.update<RenderingSystem>(dt);
 }
 
+
+// key input call back
+void Engine::keyCallback(GLFWwindow* window, int key, int action)
+{
+    // if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_REPEAT){ 
+    char letter = static_cast<char> (key);
+    std::cout << letter << " is pressed" << std::endl;
+    if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
+       
+        glfwSetWindowShouldClose(window, true);
+    }
+}
+
+//cursor position input call back 
+void Engine::cursorPositionCallback(GLFWwindow* window, double xpos, double ypos) {
+    std::cout << "x position: " << xpos << "y position: " << ypos << std::endl;
+}
+
+//cursor enter input call back
+void Engine::cursorEnterCallback(GLFWwindow* window, int entered) {
+    std::cout << "Entered window" << std::endl;
+}
+
+//mouse button input call back
+void Engine::mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
+    if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
+        std::cout << "Right button pressed" << std::endl;
+    }
+
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+        std::cout << "Left button presse" << std::endl;
+    }
+}
+
+//mouse scroll input call back
+void Engine::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
+    std::cout << "scroll x offset: " << xoffset << " yoffset: " << yoffset << std::endl;
+}
+
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 // ---------------------------------------------------------------------------------------------------------
-void Engine::processInput(GLFWwindow* window)
-{
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
-}
+//void Engine::processInput(GLFWwindow* window)
+//{
+//    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+//        glfwSetWindowShouldClose(window, true);
+//}
 
 void Engine::start() {
     Logger::getInstance() << "Start of game engine.\n";
@@ -143,6 +186,30 @@ void Engine::start() {
 
         //Swap front and back buffers
         glfwSwapBuffers(window);
+
+        glfwSetKeyCallback(window, [](GLFWwindow* window, int key, int scancode, int action, int mods)
+            {
+                getInstance().keyCallback(window, key, action);
+            });
+
+        glfwSetCursorPosCallback(window, [](GLFWwindow* window, double xpos, double ypos) {
+            getInstance().cursorPositionCallback(window, xpos, ypos);
+            });
+
+        glfwSetCursorEnterCallback(window, [](GLFWwindow* window, int entered) {
+            getInstance().cursorEnterCallback(window, entered);
+            });
+
+        glfwSetMouseButtonCallback(window, [](GLFWwindow* window, int button, int action, int mods) {
+            getInstance().mouseButtonCallback(window, button, action, mods);
+            });
+
+        glfwSetScrollCallback(window, [](GLFWwindow* window, double xoffset, double yoffset) {
+            getInstance().scrollCallback(window, xoffset, yoffset);
+            });
+
+        double xpos, ypos;
+        glfwGetCursorPos(window, &xpos, &ypos);
 
         //Poll for and process events
         glfwPollEvents();

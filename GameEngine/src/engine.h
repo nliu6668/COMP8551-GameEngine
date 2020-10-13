@@ -31,7 +31,15 @@ class Engine : public EntityX {
         bool initialized = false;
         void initialize();
         void update();
-        void processInput(GLFWwindow* window);
+
+        //write your input function in call back function 
+        void keyCallback(GLFWwindow* window, int key, int action);
+        void cursorPositionCallback(GLFWwindow* window, double xpos, double ypos);
+        void cursorEnterCallback(GLFWwindow* window, int entered);
+        void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
+        void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
+        //void processKeyInput(GLFWwindow* window, int key, int scancode, int action, int mods);
+
 
         // settings
         
