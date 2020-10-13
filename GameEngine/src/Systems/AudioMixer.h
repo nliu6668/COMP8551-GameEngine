@@ -16,11 +16,12 @@ public:
 		BASS_ChannelSetAttribute(stream, BASS_ATTRIB_VOL, volume);
     }
 
-	//channel freq   100 min - 0 normal - 100000 max 
-	void adjustfreq(int stream, float freq)
+	//music speed
+	void soundspeed(DWORD stream, float speed) 
 	{
-		BASS_ChannelSetAttribute(stream, BASS_ATTRIB_FREQ, freq);
+		BASS_ChannelSetAttribute(stream, BASS_ATTRIB_MUSIC_SPEED, speed);
 	}
+
 
 	//distortion
 
