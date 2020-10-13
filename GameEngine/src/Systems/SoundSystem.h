@@ -34,6 +34,12 @@ class SoundSystem : public System<SoundSystem> {
                         Logger::getInstance() << handle->tag << "'s name is " << handle->name << "\t";
                     }
                     handle->sound->play();
+
+             
+                    //causes echo effect
+                    //audiomix->Setecho(handle->sound->sound, true);
+                    //audiomix->echoproperties(0, 100, 2000, 2000, TRUE);
+             
                 }
             }
 
