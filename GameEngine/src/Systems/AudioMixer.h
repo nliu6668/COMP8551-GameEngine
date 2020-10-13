@@ -1,22 +1,15 @@
 #pragma once
 #include "entityx/entityx.h"
 #include "../Components/Sound.h"
-#include "SoundSystem.h"
 #include <Bass\bass.h>
+
+
 
 class AudioMixer : public System<AudioMixer> {
 public:
-    Sound* bgm;
-    Sound* sound;
 
-	void update() {
-		BASS_DX8_DISTORTION distort;
-		distort.fGain = -18;
-		distort.fEdge = 15;
-		distort.fPostEQCenterFrequency = 2400;
-		distort.fPostEQBandwidth = 2400;
-		distort.fPreLowpassCutoff = 8000;
-	}
+
+
 	//channel volume 0 - 1
     void adjustvolume(int stream, float volume)
     {
@@ -32,20 +25,93 @@ public:
 	//distortion
 
 	//Set distortion effect
-	void setdistortion(DWORD handle) {
-		BASS_ChannelSetFX(handle, BASS_FX_DX8_DISTORTION, 1);
+	void Setdistortion(DWORD stream, bool on) {
+		if (on == true)
+		{
+			BASS_ChannelSetFX(stream, BASS_FX_DX8_DISTORTION, 1);
+		}
+		else if (on == false) {
+			BASS_ChannelRemoveFX(stream, BASS_FX_DX8_DISTORTION);
+		}
 	}
 
 	//set distortion properties
-	void distortionproperties() 
+	void distortionproperties(float gain, float edge, float EQCenterFrequency, float EQBandwidth, float cutoff) 
 	{
 		BASS_DX8_DISTORTION distort;
-		distort.fGain = -18;
-		distort.fEdge = 15;
-		distort.fPostEQCenterFrequency = 2400;
-		distort.fPostEQBandwidth = 2400;
-		distort.fPreLowpassCutoff = 8000;
+		distort.fGain = gain;
+		distort.fEdge = edge;
+		distort.fPostEQCenterFrequency = EQCenterFrequency;
+		distort.fPostEQBandwidth = EQBandwidth;
+		distort.fPreLowpassCutoff = cutoff;
 	}
 
+	//Set echo effect
+	void Setecho(DWORD stream, bool on) {
+		if (on == true)
+		{
+			BASS_ChannelSetFX(stream, BASS_FX_DX8_ECHO, 1);
+		}
+		else if (on == false) {
+			BASS_ChannelRemoveFX(stream, BASS_FX_DX8_ECHO);
+		}
+	}
+
+	void echoproperties(float wetdrymix, float feedback, float leftdelay, float rightdelay, bool pandelay)
+	{
+		BASS_DX8_ECHO echo;
+		echo.fWetDryMix = wetdrymix;
+		echo.fFeedback = feedback;
+		echo.fLeftDelay = leftdelay;
+		echo.fRightDelay = rightdelay;
+		echo.lPanDelay = pandelay;
+	}
+
+	//chours
+
+	void Setchorus(DWORD stream, bool on) {
+		if (on == true)
+		{
+			BASS_ChannelSetFX(stream, BASS_FX_DX8_CHORUS, 1);
+		}
+		else if (on == false) {
+			BASS_ChannelRemoveFX(stream, BASS_FX_DX8_CHORUS);
+		}
+	}
+
+	void chorusproperties(float wetdrymix, float depth, float feedback, float frequency, DWORD waveform, float delay, DWORD phase)
+	{
+		BASS_DX8_CHORUS chorus;
+		chorus.fWetDryMix = wetdrymix;
+		chorus.fDepth = depth;
+		chorus.fFeedback = feedback;
+		chorus.fFrequency = frequency;
+		chorus.lWaveform = waveform;
+		chorus.fDelay = delay;
+		chorus.lPhase = phase;
+	}
+
+	//FLANGER
+	void Setflanger(DWORD stream, bool on) {
+		if (on == true)
+		{
+			BASS_ChannelSetFX(stream, BASS_FX_DX8_FLANGER, 1);
+		}
+		else if (on == false) {
+			BASS_ChannelRemoveFX(stream, BASS_FX_DX8_FLANGER);
+		}
+	}
+
+	void flangerproperties(float wetdrymix, float depth, float feedback, float frequency, DWORD waveform, float delay, DWORD phase)
+	{
+		BASS_DX8_FLANGER flanger;
+		flanger.fWetDryMix = wetdrymix;
+		flanger.fDepth = depth;
+		flanger.fFeedback = feedback;
+		flanger.fFrequency = frequency;
+		flanger.lWaveform = waveform;
+		flanger.fDelay = delay;
+		flanger.lPhase = phase;
+	}
 
 };

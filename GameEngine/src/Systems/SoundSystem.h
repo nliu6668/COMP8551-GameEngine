@@ -38,14 +38,16 @@ class SoundSystem : public System<SoundSystem> {
                 
                 BASS_ChannelPlay(stream, true);
 
-				BASS_DX8_DISTORTION distort;
-				distort.fGain = -60;
-				distort.fEdge = 100;
-				distort.fPostEQCenterFrequency = 8000;
-				distort.fPostEQBandwidth = 8000;
-				distort.fPreLowpassCutoff = 8000;
+                //audiomix->flangerproperties(0, 100, 99, 10, 1, 20, BASS_DX8_PHASE_180);
+                //audiomix->Setflanger(stream, true);
+
+               //audiomix->chorusproperties(0, 100, 99, 10, 1, 20, BASS_DX8_PHASE_180);
+               //audiomix->Setchorus(stream, true);
+
+               //audiomix->echoproperties(0, 100, 2000, 2000, true);
+               //audiomix->Setecho(stream, true);
                 
-                
+
                 //audiomix->setdistortion(stream);
 
 //                BASS_ChannelSetFX(stream, BASS_FX_DX8_DISTORTION, 1);
@@ -58,6 +60,7 @@ class SoundSystem : public System<SoundSystem> {
             if (!BASS_Init(-1, 44100, 0, NULL, NULL)) {
                 std::cout << "There is no device to use" << std::endl;
                 return false;
+                
             }
             else{
                 return true;

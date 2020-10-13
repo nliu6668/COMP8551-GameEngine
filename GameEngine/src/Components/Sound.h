@@ -1,6 +1,9 @@
 #pragma once
-
+#include "../Systems/AudioMixer.h"
 #include <Bass\bass.h>
+
+
+
 struct Sound {
     Sound(const char* name, bool ifLoop = false) : name(name), ifLoop(ifLoop) {
         if (ifLoop == true) {
@@ -12,7 +15,7 @@ struct Sound {
         channel = BASS_SampleGetChannel(sample, FALSE);
         BASS_ChannelGetAttribute(channel, BASS_ATTRIB_VOL, &volume);
     }
-
+    AudioMixer *audiomix;
     HCHANNEL channel;
     HSAMPLE sample;
     const char* name; //path of the file
@@ -22,6 +25,7 @@ struct Sound {
 
     void play() {
         BASS_ChannelPlay(channel, FALSE);
+   
     }
 
     void pause() {
@@ -51,6 +55,8 @@ struct Sound {
     void setSpeed(float speed) {
         //BASS_ChannelSetAttribute(channel, BASS_ATTRIB_MUSIC_SPEED, speed);
     }
+
+
 
     void cleanUp() {
         BASS_SampleFree(sample);
