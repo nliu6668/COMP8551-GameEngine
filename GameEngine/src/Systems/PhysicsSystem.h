@@ -1,5 +1,7 @@
 #pragma once
 
+#define _USE_MATH_DEFINES
+
 #include "entityx/entityx.h"
 #include <vector>
 #include <algorithm>
@@ -7,6 +9,7 @@
 // #include "PhysicsFunctions.h"
 #include "../logger.h"
 #include <string>
+#include <math.h>
 
 using namespace entityx;
 
@@ -37,11 +40,96 @@ class PhysicsSystem : public System<PhysicsSystem> {
 
             //Step 2: Detect collisions
             std::vector<EntityPair> pairs = broadphase(es); //returns pairs of possible collisions
-            //narrowphase(pairs) should return pairs of entities that are colliding
+            std::vector<EntityPair> collidingPairs = narrowphase(pairs); //should return pairs of entities that are colliding
 
+            for (int i = 0; i < collidingPairs.size(); ++i) {
+                Logger::getInstance() << collidingPairs.at(i).a.id().id() << " colliding with " << collidingPairs.at(i).b.id().id() << "\n";
+            }
+            Logger::getInstance() << "physics!\n";
             //Step 3: apply physics to all entities and resolve all collisions from pairs
+            for(int i = 0; i < collidingPairs.size(); ++i) {
+                PerformCollisionCalculations(collidingPairs.at(i));
+            }
+            auto entities = es.entities_with_components<Rigidbody_2D>();
+
+            for(Entity e : entities){
+                //Update thrust by getting force value from input
+                float thrust = 0.0f;
+
+                //Update velocities and accelerations
+                UpdateVelocityAndAcceleration(e, dt, thrust);
+            }
         }
     private:
+        std::vector<EntityPair> narrowphase(std::vector<EntityPair> possibleColl) {
+            std::vector<EntityPair> collisions;
+            for (EntityPair ep : possibleColl) {
+                //get each entity's colliders and transforms
+                ComponentHandle<BoxCollider> c1 = ep.a.component<BoxCollider>();
+                ComponentHandle<BoxCollider> c2 = ep.b.component<BoxCollider>();
+                ComponentHandle<Transform> c1T = ep.a.component<Transform>();
+                ComponentHandle<Transform> c2T = ep.b.component<Transform>();
+
+                //check if the colliders are colliding based on their type/shape
+                bool isColliding = CheckCollision(c1, c2, c1T, c2T);
+                if (isColliding) {
+                    collisions.push_back(ep);
+                }
+            }
+
+            return collisions;
+        }
+        #pragma region //Collision algorithms
+        //Box - Box
+        bool CheckCollision(ComponentHandle<BoxCollider>& c1, ComponentHandle<BoxCollider>& c2, ComponentHandle<Transform> c1T, ComponentHandle<Transform> c2T) {
+            return DetectAABB(c1->x + c1T->x, c1->y + c1T->y, c1->bbWidth, c1->bbHeight, c2->x + c2T->x, c2->y + c2T->y, c2->bbWidth, c2->bbHeight);
+        }
+
+        //Circle - Circle
+        bool CheckCollision(ComponentHandle<CircleCollider>& c1, ComponentHandle<CircleCollider>& c2, ComponentHandle<Transform> c1T, ComponentHandle<Transform> c2T) {
+            //TODO
+            return false;
+        }
+
+        //Capsule - Capsule
+        bool CheckCollision(ComponentHandle<CapsuleCollider>& c1, ComponentHandle<CapsuleCollider>& c2, ComponentHandle<Transform> c1T, ComponentHandle<Transform> c2T) {
+            //TODO
+            return false;
+        }
+
+        //Box - Circle
+        bool CheckCollision(ComponentHandle<BoxCollider>& c1, ComponentHandle<CircleCollider>& c2, ComponentHandle<Transform> c1T, ComponentHandle<Transform> c2T) {
+            //TODO
+            return false;
+        }
+
+        //Circle - Box (Calls Box - Circle)
+        bool CheckCollision(ComponentHandle<CircleCollider>& c1, ComponentHandle<BoxCollider>& c2, ComponentHandle<Transform> c1T, ComponentHandle<Transform> c2T) {
+            return CheckCollision(c2, c1, c2T, c1T);
+        }
+
+        //Box - Capsule
+        bool CheckCollision(ComponentHandle<BoxCollider>& c1, ComponentHandle<CapsuleCollider>& c2, ComponentHandle<Transform> c1T, ComponentHandle<Transform> c2T) {
+            //TODO
+            return false;
+        }
+
+        //Capsule - Box (Calls Box - Capsule)
+        bool CheckCollision(ComponentHandle<CapsuleCollider>& c1, ComponentHandle<BoxCollider>& c2, ComponentHandle<Transform> c1T, ComponentHandle<Transform> c2T) {
+            return CheckCollision(c2, c1, c2T, c1T);
+        }
+
+        //Circle - Capsule
+        bool CheckCollision(ComponentHandle<CircleCollider>& c1, ComponentHandle<CapsuleCollider>& c2, ComponentHandle<Transform> c1T, ComponentHandle<Transform> c2T) {
+            //TODO
+            return false;
+        }
+
+        //Capsule - Circle (Calls Circle - Capsule)
+        bool CheckCollision(ComponentHandle<CapsuleCollider>& c1, ComponentHandle<CircleCollider>& c2, ComponentHandle<Transform> c1T, ComponentHandle<Transform> c2T) {
+            return CheckCollision(c2, c1, c2T, c1T);
+        }
+
         bool DetectAABB(float x1, float y1, float width1, float height1,
             float x2, float y2, float width2, float height2){
             if (x1 <= x2 + width2 && x1 + width1 >= x2 && y1 <= y2 + height2 &&
@@ -50,6 +138,62 @@ class PhysicsSystem : public System<PhysicsSystem> {
             }
             return false;
         }
+
+        void PerformCollisionCalculations(EntityPair collision) {
+            ComponentHandle<Transform> aTrans = collision.a.component<Transform>();
+            ComponentHandle<Transform> bTrans = collision.b.component<Transform>();
+            ComponentHandle<Rigidbody_2D> aRB = collision.a.component<Rigidbody_2D>();
+            ComponentHandle<Rigidbody_2D> bRB = collision.b.component<Rigidbody_2D>();
+
+            float aMass = aRB->mass;
+            float bMass = bRB->mass;
+
+            float xDist = (bTrans->x + bRB->cmX) - (aTrans->x + aRB->cmX);
+            float yDist = (bTrans->y + bRB->cmY) - (aTrans->y + aRB->cmY);
+
+            float phi = atan2f(yDist, xDist);
+
+            float vAI = sqrtf(powf(aRB->velocityX, 2.0f) + powf(aRB->velocityY, 2.0f));
+            float iThetaA = atan2f(aRB->velocityY, aRB->velocityX);
+
+            float vBI = sqrtf(powf(bRB->velocityX, 2.0f) + powf(bRB->velocityY, 2.0f));
+            float iThetaB = atan2f(bRB->velocityY, bRB->velocityX);
+
+            float vAFX = ((vAI * cosf(iThetaA - phi) * (aMass - bMass) + 2 * bMass * vBI * cosf(iThetaB - phi)) / (aMass + bMass)) * 
+            cosf(phi) + vAI * sinf(iThetaA - phi) * cosf(phi + M_PI_2);
+
+            float vAFY = ((vAI * cosf(iThetaA - phi) * (aMass - bMass) + 2 * bMass * vBI * cosf(iThetaB - phi)) / (aMass + bMass)) * 
+            sinf(phi) + vAI * sinf(iThetaA - phi) * sinf(phi + M_PI_2);
+
+            float vBFX = ((vBI * cosf(iThetaB - phi) * (bMass - aMass) + 2 * aMass * vAI * cosf(iThetaA - phi)) / (aMass + bMass)) * 
+            cosf(phi) + vBI * sinf(iThetaB - phi) * cosf(phi + M_PI_2);
+
+            float vBFY = ((vBI * cosf(iThetaB - phi) * (bMass - aMass) + 2 * aMass * vAI * cosf(iThetaA - phi)) / (aMass + bMass)) * 
+            sinf(phi) + vBI * sinf(iThetaB - phi) * sinf(phi + M_PI_2);
+
+            aRB->velocityX = vAFX;
+            aRB->velocityY = vAFY;
+            bRB->velocityX = vBFX;
+            bRB->velocityY = vBFY;
+
+            return;
+        }
+
+        void UpdateVelocityAndAcceleration(Entity e, TimeDelta dt, float thrust = 0.0f){
+            ComponentHandle<Rigidbody_2D> rb = e.component<Rigidbody_2D>();
+            float tau = rb->mass / rb->linDrag;
+            float t = (float)dt;
+            //update velocity
+            rb->velocityX = (1.0f/rb->linDrag)*(thrust - expf(-1 * rb->linDrag * t / rb->mass) * (thrust - rb->linDrag * rb->velocityX));
+            rb->velocityY = (1.0f/rb->linDrag)*(thrust - expf(-1 * rb->linDrag * t / rb->mass) * (thrust - rb->linDrag * rb->velocityY));
+            //update acceleration
+            rb->accelerationX = (thrust - rb->linDrag * rb->velocityX) / rb->mass;
+            rb->accelerationY = (thrust - rb->linDrag * rb->velocityY) / rb->mass;
+
+            return;
+        }
+
+        #pragma endregion //collision algorithms
 
         std::vector<EntityPair> broadphase(EntityManager& es) {
             //might need performance boost - right now it's sorting every frame,
@@ -66,8 +210,9 @@ class PhysicsSystem : public System<PhysicsSystem> {
             std::vector<SASObject> sas;
             for (Entity e : entities) {
                 ComponentHandle<BoxCollider> handle = e.component<BoxCollider>();
-                sas.emplace_back(SASObject(handle->b, e, true));
-                sas.emplace_back(SASObject(handle->e, e, false));
+                ComponentHandle<Transform> handleT = e.component<Transform>();
+                sas.emplace_back(SASObject(handle->b + handleT->x, e, true));
+                sas.emplace_back(SASObject(handle->e + handleT->x, e, false));
             }
             //pretty sure that each entity can only have one component of each type, i.e. no duplicates.
             //If this is the case it doesnt make sense for an entity to be able to have two different types of components either
@@ -98,7 +243,9 @@ class PhysicsSystem : public System<PhysicsSystem> {
                             Entity e2 = (*it2).e;
                             ComponentHandle<BoxCollider> c1 = e1.component<BoxCollider>();
                             ComponentHandle<BoxCollider> c2 = e2.component<BoxCollider>();
-                            if (DetectAABB(c1->x, c1->y, c1->bbWidth, c1->bbHeight, c2->x, c2->y, c2->bbWidth, c2->bbHeight)) {
+                            ComponentHandle<Transform> c1T = e1.component<Transform>();
+                            ComponentHandle<Transform> c2T = e2.component<Transform>();
+                            if (DetectAABB(c1->x + c1T->x, c1->y + c1T->y, c1->bbWidth, c1->bbHeight, c2->x + c2T->x, c2->y + c2T->y, c2->bbWidth, c2->bbHeight)) {
                                 possibleCollides.emplace_back(EntityPair((*it).e, (*it2).e));
                             }
                         }

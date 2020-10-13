@@ -2,9 +2,11 @@
  
 #include "entityx/entityx.h"
 #include "../Components/Sound.h"
-#include <Bass\bass.h>
+
 #include "AudioMixer.h"
 #include <Windows.h>
+#include "../Components/AudioSource.h"
+#include <Bass\bass.h>
 
 using namespace entityx;
 
@@ -18,58 +20,47 @@ class SoundSystem : public System<SoundSystem> {
         void update(EntityManager& es, EventManager& events, TimeDelta dt) override {
             //update loop
 
-
-            if (bgm == NULL || sound == NULL) {
-                std::cout << "System Init" << std::endl;
-                if (initSystem()) {
-                    BASS_SetVolume(1);
-                    bgm = new Sound("resource/Lizz Robinett - Hide and Seek.mp3", false);
-                    bgm->setVolumn(0.1f);
-                    sound = new Sound("resource/kick-trimmed.wav", true);
-                    sound->setVolumn(1.0f);
-					
-      
+            auto entities = es.entities_with_components<AudioSource>();
+            if (!initialized) {
+                initSystem();
+                for (Entity e : entities) {
+                    ComponentHandle<AudioSource> handle = e.component<AudioSource>();
+                    handle->sound->setUpSound();
+                    if (handle->name == "Red Dead Redemption 2 - See the Fire in Your Eyes.mp3") {
+                        handle->tag = "bgm";
+                    }
+                    if (handle->tag == "bgm") {
+                        //handle->setVolume(0.2f);
+                        Logger::getInstance() << handle->tag << "'s name is " << handle->name << "\t";
+                    }
+                    handle->sound->play();
                 }
             }
-				//bgm->play();
-				sound->play();
 
-                HSTREAM stream = BASS_StreamCreateFile(false, "resource/Lizz Robinett - Hide and Seek.mp3", 0, 0, 0);
-                
-                BASS_ChannelPlay(stream, true);
-
-                //audiomix->flangerproperties(0, 100, 99, 10, 1, 20, BASS_DX8_PHASE_180);
-                //audiomix->Setflanger(stream, true);
-
-               //audiomix->chorusproperties(0, 100, 99, 10, 1, 20, BASS_DX8_PHASE_180);
-               //audiomix->Setchorus(stream, true);
-
-               //audiomix->echoproperties(0, 100, 2000, 2000, true);
-               //audiomix->Setecho(stream, true);
-                
-
-                //audiomix->setdistortion(stream);
-
-//                BASS_ChannelSetFX(stream, BASS_FX_DX8_DISTORTION, 1);
-		
-            //    BASS_ChannelSetAttribute(sound->channel, BASS_ATTRIB_MUSIC_BPM, 255);
-			
+            for (Entity e : entities) {
+                ComponentHandle<AudioSource> handle = e.component<AudioSource>();
+                handle->sound->setVolumn(handle->volume);
+            }
         }
 
-        bool initSystem() {
+        void initSystem() {
             if (!BASS_Init(-1, 44100, 0, NULL, NULL)) {
-                std::cout << "There is no device to use" << std::endl;
-                return false;
-                
+                Logger::getInstance() << "There is no device to use" << "\n\r";
             }
-            else{
-                return true;
+            else {
+                initialized = true;
             }
         }
 
-        void cleanup() {
-            bgm->cleanUp();
-            sound->cleanUp();
+        void cleanup(EntityManager& es) {
+            auto entities = es.entities_with_components<AudioSource>();
+            for (Entity e : entities) {
+                ComponentHandle<AudioSource> handle = e.component<AudioSource>();
+                handle->cleanUp();
+            }
             BASS_Free();
         }
+
+    private:
+        bool initialized = false;
 };

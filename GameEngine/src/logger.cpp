@@ -23,6 +23,13 @@ Logger& Logger::operator<<(int num) {
     return *this;
 }
 
+Logger& Logger::operator<<(uint64_t num) {
+    file = ofstream(FILE_NAME, ofstream::app);
+    file << num;
+    file.close();
+    return *this;
+}
+
 Logger& Logger::operator<<(float num) {
     file = ofstream(FILE_NAME, ofstream::app);
     file << num;

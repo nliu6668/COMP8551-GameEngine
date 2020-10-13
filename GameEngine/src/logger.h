@@ -14,6 +14,7 @@ class Logger {
 
         Logger& operator<<(string text);
         Logger& operator<<(int num);
+        Logger& operator<<(uint64_t num);
         Logger& operator<<(float num);
         Logger& operator<<(double num);
         Logger& operator<<(char c);

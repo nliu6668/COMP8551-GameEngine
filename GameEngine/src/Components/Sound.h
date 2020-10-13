@@ -1,65 +1,64 @@
 #pragma once
-#include "../Systems/AudioMixer.h"
+
 #include <Bass\bass.h>
-
-
-
+#include "../logger.h"
 struct Sound {
-    Sound(const char* name, bool ifLoop = false) : name(name), ifLoop(ifLoop) {
-        if (ifLoop == true) {
-            sample = BASS_SampleLoad(false, name, 0, 0, 1, BASS_SAMPLE_LOOP);
-        }
-        else {
-            sample = BASS_SampleLoad(false, name, 0, 0, 1, BASS_SAMPLE_MONO);
-        }
-        channel = BASS_SampleGetChannel(sample, FALSE);
-        BASS_ChannelGetAttribute(channel, BASS_ATTRIB_VOL, &volume);
-    }
-    AudioMixer *audiomix;
-    HCHANNEL channel;
-    HSAMPLE sample;
-    const char* name; //path of the file
-    bool ifLoop; //set if loop the sound
-    float volume; //volumn of the sound
+    Sound(const char* name, bool ifLoop = false) : name(name), ifLoop(ifLoop) {}
 
+    HSTREAM sound;
+    const char* name; //path of the file
+    char path[20] = "src/res/sounds/";    //path to store the sound
+    bool ifLoop; //set if loop the sound
+    bool ifReverb = false; //set if reverb the sound
+    float volume = -1; //volumn of the sound
+
+    void setUpSound() {
+        char fullpath[100];
+        sprintf(fullpath, "%s/%s", path, name);
+        if (!(sound = BASS_StreamCreateFile(false, fullpath, 0, 0, BASS_SAMPLE_MONO))) {
+            Logger::getInstance() << "Load error: " << BASS_ErrorGetCode() << " \t";
+        }
+        if (ifLoop == true) {
+            setIfLoop(ifLoop);
+        }
+        BASS_ChannelGetAttribute(sound, BASS_ATTRIB_VOL, &volume);
+    }
 
     void play() {
-        BASS_ChannelPlay(channel, FALSE);
-   
+        if (!BASS_ChannelPlay(sound, FALSE)) {
+            Logger::getInstance() << "Play error: " << BASS_ErrorGetCode() << " \t";
+        }
     }
 
     void pause() {
-        BASS_ChannelPause(channel);
+        if (!BASS_ChannelPause(sound)) {
+            Logger::getInstance() << "Play error: " << BASS_ErrorGetCode() << " \t";
+        }
     }
 
     void stop() {
-        BASS_ChannelStop(channel);
+        if (!BASS_ChannelStop(sound)) {
+            Logger::getInstance() << "Play error: " << BASS_ErrorGetCode() << " \t";
+        }
     }
 
     void setIfLoop(bool loop) {
         ifLoop = loop;
-        if (ifLoop == true) {
-            sample = BASS_SampleLoad(false, name, 0, 0, 1, BASS_SAMPLE_LOOP);
+
+        if (BASS_ChannelFlags(sound, BASS_SAMPLE_LOOP, BASS_SAMPLE_LOOP) == -1) {
+            Logger::getInstance() << "Play error: " << BASS_ErrorGetCode() << " \t";
         }
-        else {
-            sample = BASS_SampleLoad(false, name, 0, 0, 1, BASS_SAMPLE_MONO);
-        }
-        channel = BASS_SampleGetChannel(sample, FALSE);
     }
 
     void setVolumn(float vol) {
         volume = vol;
-        BASS_ChannelSetAttribute(channel, BASS_ATTRIB_VOL, volume);
+        BASS_ChannelSetAttribute(sound, BASS_ATTRIB_VOL, volume);
     }
-
-    void setSpeed(float speed) {
-        //BASS_ChannelSetAttribute(channel, BASS_ATTRIB_MUSIC_SPEED, speed);
-    }
-
-
 
     void cleanUp() {
-        BASS_SampleFree(sample);
+        BASS_StreamFree(sound);
         delete name;
+        free(path);
+
     }
 };
