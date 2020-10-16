@@ -2,20 +2,22 @@
 
 #include <Bass\bass.h>
 #include "../logger.h"
+#include <string>
+
+using namespace std;
 struct Sound {
-    Sound(const char* name, bool ifLoop = false) : name(name), ifLoop(ifLoop) {}
+    Sound(string name, bool ifLoop = false) : name(name), ifLoop(ifLoop) {}
 
     HSTREAM sound;
-    const char* name; //path of the file
-    char path[20] = "src/res/sounds/";    //path to store the sound
+    string name; //path of the file
+    string path = "src/res/sounds/";    //path to store the sound
     bool ifLoop; //set if loop the sound
     bool ifReverb = false; //set if reverb the sound
     float volume = -1; //volumn of the sound
 
     void setUpSound() {
-        char fullpath[100];
-        sprintf(fullpath, "%s/%s", path, name);
-        if (!(sound = BASS_StreamCreateFile(false, fullpath, 0, 0, BASS_SAMPLE_MONO))) {
+        string fullpath = path + name;
+        if (!(sound = BASS_StreamCreateFile(false, fullpath.c_str(), 0, 0, BASS_SAMPLE_MONO))) {
             Logger::getInstance() << "Load error: " << BASS_ErrorGetCode() << " \t";
         }
         if (ifLoop == true) {
@@ -57,8 +59,6 @@ struct Sound {
 
     void cleanUp() {
         BASS_StreamFree(sound);
-        delete name;
-        free(path);
 
     }
 };

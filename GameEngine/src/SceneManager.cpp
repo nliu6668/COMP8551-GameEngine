@@ -1,5 +1,7 @@
 #include "SceneManager.h"
 #include "logger.h"
+#include "engine.h"
+#include "Events/Events.h"
 
 SceneManager::SceneManager() {
 
@@ -17,8 +19,7 @@ void SceneManager::loadScene(string sceneName) {
         scene = scenes.at(i);
         if (scene->getName() == sceneName) {
             scene->load();
-
-            //find all entities with custom scripts and run their start methods
+            Engine::getInstance().events.emit<SceneLoad>(scene->getName());
             
             return;
         }
