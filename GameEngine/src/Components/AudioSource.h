@@ -2,12 +2,15 @@
 
 #include <Bass\bass.h>
 #include "Sound.h"
+#include <string>
+
+using namespace std;
 
 struct AudioSource {
 	AudioSource(Sound* sound) : sound(sound), name(sound->name) {}
 
 	Sound* sound;
-	const char* name;
+	string name;
 	float volume = 1;
 	string tag;
 

@@ -118,9 +118,9 @@ class PhysicsSystem : public System<PhysicsSystem> {
 
                 // //check if the colliders are colliding based on their type/shape
                 // bool isColliding = CheckCollision(c1, c2, c1T, c2T);
-                // if (isColliding) {
-                //     collisions.push_back(ep);
-                // }
+                if (isColliding) {
+                    collisions.push_back(ep);
+                }
             }
 
             return collisions;
