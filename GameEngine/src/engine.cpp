@@ -171,12 +171,6 @@ void Engine::start() {
     entity.assign<Rotate>(0, 0, 0, 1);
     entity.assign<Camera>(0.0f, 960.0f, 0.0f, 540.0f, -1.0f, 1.0f);
 
-    //test for sound system
-    // Entity e1 = entities.create();
-    // e1.assign<AudioSource>(new Sound("Red Dead Redemption 2 - See the Fire in Your Eyes.mp3"));
-    Entity e2 = entities.create();
-    e2.assign<AudioSource>(new Sound("kick-trimmed.wav", true));
-
     SceneManager::getInstance().start();
     // render loop
     // -----------
