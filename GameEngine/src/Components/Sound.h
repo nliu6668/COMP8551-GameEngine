@@ -28,6 +28,7 @@ struct Sound {
         echo.fRightDelay = audio->echoright;
         echo.lPanDelay = audio->echodelay;
         
+        
         //distort
         BASS_DX8_DISTORTION distort;
         distort.fGain = audio->dgain;

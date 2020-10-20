@@ -18,11 +18,11 @@ public:
 	//bool echo_on = false;
 
 	//distortion variables
-	float dgain = -18;
-	float dedge = 15;
-	float dEQcenter = 2400;
-	float dEQbandwidth = 2400;
-	float dcutoff = 8000;
+	float dgain;// = -18;
+	float dedge;// = 15;
+	float dEQcenter;// = 2400;
+	float dEQbandwidth; //= 2400;
+	float dcutoff;// = 8000;
 	//bool distort_on = false;
 
 	//chorus variables
@@ -79,11 +79,11 @@ public:
 	//set distortion properties
 	void distortionproperties(float gain, float edge, float EQCenterFrequency, float EQBandwidth, float cutoff) 
 	{
-		dgain = gain;
-		dedge = edge;
-		dEQcenter = EQCenterFrequency;
-		dEQbandwidth = EQBandwidth;
-		dcutoff = cutoff;
+		float dgain = gain;
+		float dedge = edge;
+		float dEQcenter = EQCenterFrequency;
+		float dEQbandwidth = EQBandwidth;
+		float dcutoff = cutoff;
 	}
 	
 	//Set echo effect
@@ -125,13 +125,13 @@ public:
 	void chorusproperties(float wetdrymix, float depth, float feedback, float frequency, DWORD waveform, float delay, DWORD phase)
 	{
 		
-		cwetdry = wetdrymix;
-		cdepth = depth;
-		cfeedback = feedback;
-		cfrequency = frequency;
-		cwave = waveform;
-		cdelay = delay;
-		cphase = phase;
+		float cwetdry = wetdrymix;
+		float cdepth = depth;
+		float cfeedback = feedback;
+		float cfrequency = frequency;
+		DWORD cwave = waveform;
+		float cdelay = delay;
+		DWORD cphase = phase;
 
 	}
 	
@@ -149,13 +149,13 @@ public:
 	void flangerproperties(float wetdrymix, float depth, float feedback, float frequency, DWORD waveform, float delay, DWORD phase)
 	{
 
-		fwetdry = wetdrymix;
-		fdepth = depth;
-		ffeed = feedback;
-		ffrequency = frequency;
-		fwave = waveform;
-		fdelay = delay;
-		fphase = phase;
+		float fwetdry = wetdrymix;
+		float  fdepth = depth;
+		float ffeed = feedback;
+		float ffrequency = frequency;
+		DWORD fwave = waveform;
+		float fdelay = delay;
+		DWORD fphase = phase;
 
 	}
 
@@ -172,8 +172,8 @@ public:
 
 	void gargleproperties(DWORD rate, DWORD wave)
 	{
-		grate = rate;
-		gwaveshape = wave;
+		DWORD grate = rate;
+		DWORD gwaveshape = wave;
 	}
 
 	//Set compression effect
@@ -192,11 +192,11 @@ public:
 	void compressionproperties(float gain, float attack, float release, float threshold, float ratio, float delay)
 	{
 		comgain = gain;
-			comatk = attack;
-			comrelease = release;
-			comthreshold = threshold;
-			comratio = ratio;
-			comdelay = delay;
+			float comatk = attack;
+			float comrelease = release;
+			float comthreshold = threshold;
+			float comratio = ratio;
+			float comdelay = delay;
 	}
 
 

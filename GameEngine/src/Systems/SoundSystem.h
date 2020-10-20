@@ -41,7 +41,7 @@ class SoundSystem : public System<SoundSystem> {
                     //handle->sound->setVolumn(2);
                     //causes echo effect
                     //audiomix->Setecho(handle->sound->sound, true);
-                    //audiomix->echoproperties(0, 100, 2000, 2000, TRUE);
+                    //audiomix->echoproperties(100, 0, 1, 1, TRUE);
                     //causes distortion effect
                     //audiomix->Setdistortion(handle->sound->sound, true);
                     //audiomix->distortionproperties(-18, 15, 2400, 2400, 8000);
